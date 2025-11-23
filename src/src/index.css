@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+@theme {
+  --color-sky-300: #87CEEB;
+  --color-sky-400: #87CEFA;
+  --color-ground-light: #DEB887;
+  --color-ground-dark: #654321;
+  --color-pipe-green: #228B22;
+  --color-pipe-light: #32CD32;
+  --color-bird-yellow: #FFD700;
+  --color-bird-orange: #FFA500;
+
+  --font-pixel: "Press Start 2P", cursive;
+  --font-body: "Inter", sans-serif;
+}
+
+@layer base {
+  @font-face {
+    font-family: 'Press Start 2P';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(https://fonts.gstatic.com/s/pressstart2p/v15/e3t4euO8T-267oIAQAu6jDQyK3nVivM.woff2) format('woff2');
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: var(--font-body);
+  height: 100dvh;
+  width: 100vw;
+}
