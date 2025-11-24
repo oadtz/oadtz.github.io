@@ -66,8 +66,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({ onToggleNightMod
                 )}
                 <button
                     className={`w-14 h-14 bg-white/70 hover:bg-white/90 rounded-lg border-2 border-gray-800 active:bg-white backdrop-blur-sm flex items-center justify-center text-2xl select-none shadow-lg ${showHint ? 'animate-pulse ring-2 ring-yellow-400' : ''}`}
+                    style={{ touchAction: 'none' }}
                     onTouchStart={handleTouchStart('ArrowUp')}
                     onTouchEnd={handleTouchEnd('ArrowUp')}
+                    onTouchCancel={handleTouchEnd('ArrowUp')}
+                    onContextMenu={(e) => e.preventDefault()}
                     onMouseDown={handleTouchStart('ArrowUp')}
                     onMouseUp={handleTouchEnd('ArrowUp')}
                     onMouseLeave={handleTouchEnd('ArrowUp')}
@@ -81,8 +84,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({ onToggleNightMod
             <div className="flex gap-2">
                 <button
                     className="w-14 h-14 bg-white/70 hover:bg-white/90 rounded-lg border-2 border-gray-800 active:bg-white backdrop-blur-sm flex items-center justify-center text-2xl select-none shadow-lg"
+                    style={{ touchAction: 'none' }}
                     onTouchStart={handleTouchStart('ArrowLeft')}
                     onTouchEnd={handleTouchEnd('ArrowLeft')}
+                    onTouchCancel={handleTouchEnd('ArrowLeft')}
+                    onContextMenu={(e) => e.preventDefault()}
                     onMouseDown={handleTouchStart('ArrowLeft')}
                     onMouseUp={handleTouchEnd('ArrowLeft')}
                     onMouseLeave={handleTouchEnd('ArrowLeft')}
@@ -92,8 +98,11 @@ export const MobileControls: React.FC<MobileControlsProps> = ({ onToggleNightMod
                 </button>
                 <button
                     className="w-14 h-14 bg-white/70 hover:bg-white/90 rounded-lg border-2 border-gray-800 active:bg-white backdrop-blur-sm flex items-center justify-center text-2xl select-none shadow-lg"
+                    style={{ touchAction: 'none' }}
                     onTouchStart={handleTouchStart('ArrowRight')}
                     onTouchEnd={handleTouchEnd('ArrowRight')}
+                    onTouchCancel={handleTouchEnd('ArrowRight')}
+                    onContextMenu={(e) => e.preventDefault()}
                     onMouseDown={handleTouchStart('ArrowRight')}
                     onMouseUp={handleTouchEnd('ArrowRight')}
                     onMouseLeave={handleTouchEnd('ArrowRight')}

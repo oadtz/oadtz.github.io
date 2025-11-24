@@ -83,7 +83,14 @@ export const updatePhysics = (state: GameState, input: InputState, deltaTime: nu
             // Loop the world - wrap around when reaching the duplicate Home section
             // 8 sections total: 7 unique + 1 duplicate Home
             // Wrap at 7 sections so the duplicate Home visually transitions to real Home
-            const maxScroll = 7 * window.innerWidth;
+            // Loop the world - wrap around when reaching the duplicate Home section
+            // 8 sections total: 7 unique + 1 duplicate Home
+            // Wrap at 7 sections so the duplicate Home visually transitions to real Home
+            
+            const width = window.innerWidth;
+            const isMobile = width < 768;
+            const gapWidth = isMobile ? width * 0.25 : 0;
+            const maxScroll = (7 * width) + (7 * gapWidth);
 
             // Reset loop flag
             newState.didLoop = false;

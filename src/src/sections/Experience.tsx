@@ -64,7 +64,7 @@ export const Experience: React.FC<SectionProps> = ({ isNightMode }) => {
 
     return (
         <div className="flex flex-col items-center justify-center h-screen w-screen p-4 sm:p-8">
-            <div className={`p-4 sm:p-8 rounded-lg border-4 shadow-lg max-w-4xl w-full max-h-[85vh] md:max-h-[80vh] overflow-y-auto transition-colors duration-500 ${isNightMode
+            <div className={`p-4 sm:p-8 rounded-lg border-4 shadow-lg max-w-4xl w-full max-h-[70vh] md:max-h-[80vh] overflow-y-auto transition-colors duration-500 ${isNightMode
                 ? 'bg-slate-800/95 border-white/50 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
                 : 'bg-white/90 border-black text-black'
                 }`}>

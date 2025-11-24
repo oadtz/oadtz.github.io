@@ -12,7 +12,7 @@ export const Home: React.FC<SectionProps> = ({ isNightMode }) => {
                 : 'bg-white/90 border-black text-black'
                 }`}>
                 <h1 className="text-3xl md:text-6xl font-pixel mb-4">Thanapat Pirmphol</h1>
-                <p className="text-lg md:text-2xl font-pixel mb-8">CTO & Software Engineer</p>
+                <p className="text-lg md:text-2xl font-pixel mb-8">CTO | Certified Blockchain Developer | Innovator</p>
 
                 {/* Desktop Instructions */}
                 <div className="hidden md:flex items-center justify-center gap-2 font-sans text-lg">
