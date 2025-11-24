@@ -12,8 +12,12 @@ import { Contact } from './sections/Contact';
 function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isNightMode, setIsNightMode] = useState(false);
+  const [themeMode, setThemeMode] = useState<'auto' | 'day' | 'night'>('auto');
+  const [autoNightMode, setAutoNightMode] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Calculate effective night mode
+  const isNightMode = themeMode === 'auto' ? autoNightMode : themeMode === 'night';
 
   useEffect(() => {
     const handleResize = () => {
@@ -24,8 +28,17 @@ function App() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const toggleNightMode = () => {
-    setIsNightMode(prev => !prev);
+  const toggleNightMode = (source: 'manual' | 'auto' = 'manual') => {
+    if (source === 'manual') {
+      // Cycle: Auto -> Day -> Night -> Auto
+      setThemeMode(prev => {
+        if (prev === 'auto') return 'day';
+        if (prev === 'day') return 'night';
+        return 'auto';
+      });
+    } else if (source === 'auto') {
+      setAutoNightMode(prev => !prev);
+    }
   };
 
   return (
@@ -38,6 +51,7 @@ function App() {
           contentRef={contentRef}
           isNightMode={isNightMode}
           onToggleNightMode={toggleNightMode}
+          themeMode={themeMode}
         />
       </div>
 

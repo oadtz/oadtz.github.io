@@ -36,6 +36,7 @@ export const UIOverlay: React.FC<UIOverlayProps> = ({ status, onStart, onRestart
                             <ul className="list-disc pl-5 space-y-1">
                                 <li><span className="font-bold">SPACE / ↑</span>: Fly Up</li>
                                 <li><span className="font-bold">← / →</span>: Change Direction</li>
+                                <li><span className="font-bold">📱 Mobile</span>: Use On-Screen Controller</li>
                             </ul>
                             <p className="mt-2 text-xs text-gray-500">
                                 Navigate through the pipes to explore my portfolio sections!

@@ -1,3 +1,5 @@
+import { lerpColor } from '../utils/colorUtils';
+
 export interface PipeData {
     x: number;
     gapY: number;
@@ -7,7 +9,7 @@ export interface PipeData {
 }
 
 export class Pipe {
-    static draw(ctx: CanvasRenderingContext2D, pipe: PipeData, scrollX: number, isNightMode: boolean = false) {
+    static draw(ctx: CanvasRenderingContext2D, pipe: PipeData, scrollX: number, nightFactor: number) {
         const screenX = pipe.x - scrollX;
 
         // Don't draw if off screen
@@ -15,17 +17,10 @@ export class Pipe {
 
         let pipeColor, pipeDark, pipeLight, pipeHighlight;
 
-        if (isNightMode) {
-            pipeColor = '#1a6b1a'; // Darker Green
-            pipeDark = '#0d360d'; // Very Dark Green
-            pipeLight = '#228B22'; // Normal Green (as highlight)
-            pipeHighlight = '#32CD32'; // Light Green (as top highlight)
-        } else {
-            pipeColor = '#228B22'; // Green
-            pipeDark = '#1a6b1a'; // Dark Green
-            pipeLight = '#32CD32'; // Light Green
-            pipeHighlight = '#90EE90'; // Very Light Green
-        }
+        pipeColor = lerpColor('#228B22', '#1a6b1a', nightFactor);
+        pipeDark = lerpColor('#1a6b1a', '#0d360d', nightFactor);
+        pipeLight = lerpColor('#32CD32', '#228B22', nightFactor);
+        pipeHighlight = lerpColor('#90EE90', '#32CD32', nightFactor);
 
         // Helper function to draw a pipe segment with 3D effect
         const drawPipeSegment = (x: number, y: number, width: number, height: number) => {
@@ -48,7 +43,7 @@ export class Pipe {
             ctx.fillRect(x + width - 4, y, 4, height);
 
             // Vertical stripes for texture
-            ctx.strokeStyle = isNightMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.1)';
+            ctx.strokeStyle = lerpColor('rgba(0, 0, 0, 0.1)', 'rgba(0, 0, 0, 0.3)', nightFactor);
             ctx.lineWidth = 1;
             for (let i = 0; i < width; i += 8) {
                 ctx.beginPath();

@@ -16,10 +16,11 @@ interface GameCanvasProps {
     height?: number;
     contentRef?: React.RefObject<HTMLDivElement | null>;
     isNightMode?: boolean;
-    onToggleNightMode?: () => void;
+    onToggleNightMode?: (source?: 'manual' | 'auto') => void;
+    themeMode?: 'auto' | 'day' | 'night';
 }
 
-const GameCanvas: React.FC<GameCanvasProps> = ({ contentRef, isNightMode, onToggleNightMode }) => {
+const GameCanvas: React.FC<GameCanvasProps> = ({ contentRef, isNightMode, onToggleNightMode, themeMode }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
     const gameStateRef = useRef<GameState>({ ...INITIAL_STATE });
@@ -65,6 +66,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ contentRef, isNightMode, onTogg
         setGameStatus('IDLE');
     };
 
+    const nightFactorRef = useRef(0);
+
     useGameLoop((deltaTime) => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -74,6 +77,21 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ contentRef, isNightMode, onTogg
         // Update Physics
         gameStateRef.current = updatePhysics(gameStateRef.current, input, deltaTime);
         const state = gameStateRef.current;
+
+        // Check for loop and toggle night mode
+        if (state.didLoop && onToggleNightMode) {
+            onToggleNightMode('auto');
+        }
+
+        // Smoothly update nightFactor
+        const targetFactor = isNightMode ? 1 : 0;
+        const speed = 0.02 * deltaTime; // Adjust speed as needed
+        if (nightFactorRef.current < targetFactor) {
+            nightFactorRef.current = Math.min(nightFactorRef.current + speed, targetFactor);
+        } else if (nightFactorRef.current > targetFactor) {
+            nightFactorRef.current = Math.max(nightFactorRef.current - speed, targetFactor);
+        }
+        const nightFactor = nightFactorRef.current;
 
         // Sync React state if changed (throttled check could be better, but this is simple)
         if (state.status !== gameStatus) {
@@ -89,15 +107,15 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ contentRef, isNightMode, onTogg
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         // Draw Background
-        Background.draw(ctx, state.worldScroll, isNightMode);
+        Background.draw(ctx, state.worldScroll, nightFactor);
 
         // Draw Pipes
         state.pipes.forEach(pipe => {
-            Pipe.draw(ctx, pipe, state.worldScroll, isNightMode);
+            Pipe.draw(ctx, pipe, state.worldScroll, nightFactor);
         });
 
         // Draw Ground
-        Ground.draw(ctx, state.worldScroll, isNightMode);
+        Ground.draw(ctx, state.worldScroll, nightFactor);
 
         // Draw Bird
         Bird.draw(ctx, state.bird, state.scrollDirection);
@@ -118,8 +136,9 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ contentRef, isNightMode, onTogg
             />
             {gameStatus === 'PLAYING' && (
                 <MobileControls
-                    isNightMode={isNightMode}
                     onToggleNightMode={onToggleNightMode}
+                    isFlying={input.space}
+                    themeMode={themeMode}
                 />
             )}
         </div>

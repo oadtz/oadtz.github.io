@@ -17,6 +17,7 @@ export interface GameState {
     scrollDirection: 1 | -1;
     pipes: PipeData[];
     status: GameStatus;
+    didLoop?: boolean;
 }
 
 export const INITIAL_STATE: GameState = {
@@ -32,4 +33,5 @@ export const INITIAL_STATE: GameState = {
     scrollDirection: 1,
     pipes: [],
     status: 'IDLE',
+    didLoop: false,
 };

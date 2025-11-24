@@ -85,12 +85,17 @@ export const updatePhysics = (state: GameState, input: InputState, deltaTime: nu
             // Wrap at 7 sections so the duplicate Home visually transitions to real Home
             const maxScroll = 7 * window.innerWidth;
 
+            // Reset loop flag
+            newState.didLoop = false;
+
             if (newState.worldScroll < 0) {
                 // Wrap to section 7 (duplicate Home)
                 newState.worldScroll = maxScroll + newState.worldScroll;
+                newState.didLoop = true;
             } else if (newState.worldScroll > maxScroll) {
                 // Wrap to the start (real Home section)
                 newState.worldScroll = newState.worldScroll - maxScroll;
+                newState.didLoop = true;
             }
         }
     }

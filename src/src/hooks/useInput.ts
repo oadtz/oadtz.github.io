@@ -37,27 +37,12 @@ export const useInput = () => {
             }
         };
 
-        // Touch support
-        const handleTouchStart = () => {
-            // Simple touch implementation: any touch is like space
-            // For more complex controls, we'd need overlay buttons
-            setInput((prev) => ({ ...prev, space: true }));
-        };
-
-        const handleTouchEnd = () => {
-            setInput((prev) => ({ ...prev, space: false }));
-        };
-
         window.addEventListener('keydown', handleKeyDown);
         window.addEventListener('keyup', handleKeyUp);
-        window.addEventListener('touchstart', handleTouchStart);
-        window.addEventListener('touchend', handleTouchEnd);
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('keyup', handleKeyUp);
-            window.removeEventListener('touchstart', handleTouchStart);
-            window.removeEventListener('touchend', handleTouchEnd);
         };
     }, []);
 
