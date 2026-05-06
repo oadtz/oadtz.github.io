@@ -159,12 +159,13 @@ function App() {
   return (
     <main>
       <section className="hero" id="top">
-        {sceneReady ? (
-          <Suspense fallback={<div className="three-scene three-scene-fallback" aria-hidden="true" />}>
-            <ThreeInfrastructureScene activeNode={activeNode} />
+        <div className="three-scene three-scene-fallback" aria-hidden="true" />
+        {sceneReady && (
+          <Suspense fallback={null}>
+            <div className="three-scene-shell">
+              <ThreeInfrastructureScene activeNode={activeNode} />
+            </div>
           </Suspense>
-        ) : (
-          <div className="three-scene three-scene-fallback" aria-hidden="true" />
         )}
         <header className="site-header" aria-label="Primary navigation">
           <a className="brand" href="#top" aria-label="Thanapat Pirmphol home">
