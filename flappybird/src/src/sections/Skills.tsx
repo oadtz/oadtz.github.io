@@ -5,11 +5,11 @@ interface SectionProps {
 }
 
 const skills = [
-    { category: "Emerging Tech", items: ["Generative AI", "LLM", "Ollama", "LMStudio", "Cursor", "CodeRabbit", "OpenCode", "Machine Learning"] },
-    { category: "Leadership & Strategy", items: ["WAND Framework", "Strategic Planning", "Team Leadership", "Tech Architecture", "Agile/Scrum", "Stakeholder Mgmt"] },
-    { category: "Blockchain", items: ["Smart Contracts", "DLT", "Solidity", "Consensus Mechanisms"] },
-    { category: "Technical Stack", items: ["NodeJS", "TypeScript", "ReactJS", "Python", "C#", "Go"] },
-    { category: "Data & Cloud", items: ["SQL/NoSQL", "MicroStrategy", "AWS", "Azure", "Docker", "DevOps"] }
+    { category: "Enterprise Systems", items: ["Aviation Ops", "Insurance IS", "App Support", "System Upgrades", "Performance Tuning"] },
+    { category: "Data & BI", items: ["MicroStrategy", "Power BI", "Data Modeling", "Reporting", "SQL/NoSQL"] },
+    { category: "Builder Stack", items: ["C#", "Go", "Python", "NodeJS", "TypeScript", "ReactJS"] },
+    { category: "Delivery Habits", items: ["Offshore Teams", "BA/PM/QA Flow", "Agile/Scrum", "Code Quality", "Stakeholder Mgmt"] },
+    { category: "Tools & Foundations", items: ["Azure", "AWS", "Docker", "MongoDB", "Machine Learning"] }
 ];
 
 export const Skills: React.FC<SectionProps> = ({ isNightMode }) => {
@@ -19,7 +19,7 @@ export const Skills: React.FC<SectionProps> = ({ isNightMode }) => {
                 ? 'bg-slate-800/95 border-white/50 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
                 : 'bg-white/90 border-black text-black'
                 }`}>
-                <h2 className={`text-2xl md:text-3xl font-pixel mb-6 md:mb-8 text-center border-b-4 pb-4 ${isNightMode ? 'border-white/50' : 'border-black'}`}>Skills Matrix</h2>
+                <h2 className={`text-2xl md:text-3xl font-pixel mb-6 md:mb-8 text-center border-b-4 pb-4 ${isNightMode ? 'border-white/50' : 'border-black'}`}>Backstory Skills</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                     {skills.map((skillGroup, index) => (
                         <div key={index} className={`border-2 p-3 md:p-4 rounded ${isNightMode ? 'border-white/30 bg-slate-700/50' : 'border-gray-300'}`}>

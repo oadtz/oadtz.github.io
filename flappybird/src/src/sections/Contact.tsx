@@ -11,10 +11,19 @@ export const Contact: React.FC<SectionProps> = ({ isNightMode }) => {
                 ? 'bg-slate-800/95 border-white/50 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
                 : 'bg-white/90 border-black text-black'
                 }`}>
-                <h2 className="text-2xl md:text-3xl font-pixel mb-4 md:mb-8">Contact</h2>
-                <p className="text-lg md:text-xl mb-6 md:mb-8">Let's work together!</p>
+                <h2 className="text-2xl md:text-3xl font-pixel mb-4 md:mb-8">Exit Arcade</h2>
+                <p className="text-lg md:text-xl mb-6 md:mb-8">Back to the main profile when you are done exploring.</p>
 
                 <div className="flex flex-col gap-3 md:gap-4 items-center">
+                    <a
+                        href="/"
+                        className={`font-pixel py-2 md:py-3 px-6 md:px-8 rounded border-b-4 active:border-b-0 active:translate-y-1 transition-all w-full md:w-64 text-sm md:text-base ${isNightMode
+                            ? 'bg-emerald-700 hover:bg-emerald-600 text-white border-emerald-950'
+                            : 'bg-emerald-500 hover:bg-emerald-600 text-black border-emerald-700'
+                            }`}
+                    >
+                        MAIN SITE
+                    </a>
                     <a
                         href="mailto:t.pirmphol@gmail.com"
                         className={`font-pixel py-2 md:py-3 px-6 md:px-8 rounded border-b-4 active:border-b-0 active:translate-y-1 transition-all w-full md:w-64 text-sm md:text-base ${isNightMode
@@ -49,7 +58,7 @@ export const Contact: React.FC<SectionProps> = ({ isNightMode }) => {
                 </div>
 
                 <div className={`mt-8 md:mt-12 text-xs md:text-sm font-pixel ${isNightMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                    THANAPAT PIRMPHOL © 2025
+                    THANAPAT PIRMPHOL © 2026
                 </div>
             </div>
         </div>

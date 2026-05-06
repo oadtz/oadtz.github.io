@@ -15,23 +15,23 @@ export const About: React.FC<SectionProps> = ({ isNightMode }) => {
                 <div className="flex flex-col gap-4 md:gap-8 items-center">
                     <div className={`w-24 h-24 md:w-32 md:h-32 rounded-full border-4 overflow-hidden shrink-0 ${isNightMode ? 'border-white/50 bg-slate-700' : 'border-black bg-gray-300'}`}>
                         <img
-                            src="/profile.jpg"
+                            src="/flappybird/profile.jpg"
                             alt="Thanapat Pirmphol"
                             className="w-full h-full object-cover"
                         />
                     </div>
                     <div className="font-sans text-base md:text-lg leading-relaxed">
                         <p className="mb-4">
-                            Visionary Chief Technology Officer specializing in Blockchain and Sustainable Technology. I bridge the gap between complex technical innovations and tangible business value.
+                            This is the arcade archive: a lighter side path for the work that does not fit neatly into the main executive site.
                         </p>
                         <p className="mb-4">
-                            With a proven track record in orchestrating high-performance engineering teams and architecting secure, scalable distributed systems, I drive digital transformation that matters. My leadership is defined by a commitment to ethical tech development and delivering solutions that are not only cutting-edge but also culturally resonant and societally impactful.
+                            Before the current focus on trusted markets, water infrastructure, blockchain, and agentic AI, I spent years building and modernizing enterprise systems across aviation, insurance, data platforms, consulting, application support, and offshore delivery.
                         </p>
                         <p className="mb-4">
-                            I pioneered the <strong>WAND Framework</strong> (Water Ledger Global AI-Native Development), a revolutionary methodology that integrates Spec-Driven Development with AI agents to accelerate engineering workflows, ensuring precision and scalability.
+                            The pattern underneath is simple: I like understanding messy operational problems, turning them into working software, and staying close enough to the implementation to know what is real.
                         </p>
                         <p>
-                            I am dedicated to leveraging technology to solve critical global challenges, ensuring that every line of code contributes to a more sustainable future.
+                            Think of this section as the playable backstory: practical systems, old-school delivery discipline, data work, certifications, and the builder personality behind the more polished profile.
                         </p>
                     </div>
                 </div>

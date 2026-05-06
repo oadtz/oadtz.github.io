@@ -22,7 +22,7 @@ export const Certifications: React.FC<SectionProps> = ({ isNightMode }) => {
                 ? 'bg-slate-800/95 border-white/50 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
                 : 'bg-white/90 border-black text-black'
                 }`}>
-                <h2 className={`text-2xl md:text-3xl font-pixel mb-6 md:mb-8 text-center border-b-4 pb-4 ${isNightMode ? 'border-white/50' : 'border-black'}`}>Education & Certifications</h2>
+                <h2 className={`text-2xl md:text-3xl font-pixel mb-6 md:mb-8 text-center border-b-4 pb-4 ${isNightMode ? 'border-white/50' : 'border-black'}`}>Foundations</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                     {certs.map((cert, index) => (
                         <div key={index} className={`flex items-center p-2 md:p-3 border-2 rounded ${isNightMode

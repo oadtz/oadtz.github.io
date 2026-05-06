@@ -15,12 +15,10 @@ export class Pipe {
         // Don't draw if off screen
         if (screenX + pipe.width < 0 || screenX > ctx.canvas.width) return;
 
-        let pipeColor, pipeDark, pipeLight, pipeHighlight;
-
-        pipeColor = lerpColor('#228B22', '#1a6b1a', nightFactor);
-        pipeDark = lerpColor('#1a6b1a', '#0d360d', nightFactor);
-        pipeLight = lerpColor('#32CD32', '#228B22', nightFactor);
-        pipeHighlight = lerpColor('#90EE90', '#32CD32', nightFactor);
+        const pipeColor = lerpColor('#228B22', '#1a6b1a', nightFactor);
+        const pipeDark = lerpColor('#1a6b1a', '#0d360d', nightFactor);
+        const pipeLight = lerpColor('#32CD32', '#228B22', nightFactor);
+        const pipeHighlight = lerpColor('#90EE90', '#32CD32', nightFactor);
 
         // Helper function to draw a pipe segment with 3D effect
         const drawPipeSegment = (x: number, y: number, width: number, height: number) => {

@@ -36,7 +36,7 @@ export const updatePhysics = (state: GameState, input: InputState, deltaTime: nu
         // Note: We do NOT reset scrollDirection to 1 here, allowing it to persist
 
         // Check if bird is on ground
-        let isOnGround = newState.bird.y >= window.innerHeight - 50;
+        const isOnGround = newState.bird.y >= window.innerHeight - 50;
 
         // Calculate base movement based on current direction
         // Only auto-scroll if bird is in the air

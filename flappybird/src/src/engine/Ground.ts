@@ -56,7 +56,7 @@ export class Ground {
                 const x = col * brickWidth + offset - (groundOffset % brickWidth);
 
                 // Brick color variation
-                let brickColor, brickDark, brickLight;
+                let brickColor;
 
                 if (row % 2 === 0) {
                     brickColor = lerpColor('#A0826D', '#5c4b3e', nightFactor);
@@ -64,8 +64,8 @@ export class Ground {
                     brickColor = lerpColor('#8B7355', '#4a3c2e', nightFactor);
                 }
                 
-                brickDark = lerpColor('#6B5344', '#362922', nightFactor);
-                brickLight = lerpColor('#C9A88A', '#756250', nightFactor);
+                const brickDark = lerpColor('#6B5344', '#362922', nightFactor);
+                const brickLight = lerpColor('#C9A88A', '#756250', nightFactor);
 
                 // Brick body
                 ctx.fillStyle = brickColor;

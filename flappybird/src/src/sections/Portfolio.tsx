@@ -6,28 +6,28 @@ interface SectionProps {
 
 const projects = [
     {
-        name: "Water Ledger",
-        role: "CTO",
-        url: "https://www.waterledger.com",
-        description: "A pioneering platform for water trading and management using blockchain technology. Enabling transparent, secure, and efficient water markets."
-    },
-    {
-        name: "TapIn",
-        role: "Creator",
-        url: "https://play.google.com/store/apps/details?id=com.waterledger.tapin&hl=en_US&pli=1",
-        description: "The ultimate water status tracker. Empowering communities to report and monitor real-time water conditions like leaks and spills on a dynamic live map."
-    },
-    {
         name: "Unilode's ACID",
         role: "Senior Software Engineer",
         url: "https://www.unilode.com/",
-        description: "A specialized aviation reporting system for Unit Load Device (ULD) management. Enhancing visibility, operational workflows, and decision-making for global aviation logistics."
+        description: "Aviation reporting and operational visibility for Unit Load Device (ULD) management. A practical example of software built close to real logistics workflows."
     },
     {
         name: "Rikai",
         role: "Team Lead",
         url: "https://www.rikai.ch",
-        description: "An innovative health-tech platform providing personalized blood analysis and health insights. Bridging the gap between medical diagnostics and user-friendly health management."
+        description: "Health-tech delivery work around blood analysis and personalized health insights, connecting complex data with user-facing product experience."
+    },
+    {
+        name: "Enterprise BI",
+        role: "Consultant",
+        url: "https://www.adastracorp.com/",
+        description: "Business intelligence and reporting systems using MicroStrategy, data modeling, and stakeholder-driven delivery across regional teams."
+    },
+    {
+        name: "E-learning Platform",
+        role: "Development Lead",
+        url: "https://www.linkedin.com/in/thanapatpirmphol/",
+        description: "Early full-lifecycle web application leadership: requirements, implementation, team delivery, and practical product building before modern frontend stacks matured."
     }
 ];
 
@@ -38,7 +38,7 @@ export const Portfolio: React.FC<SectionProps> = ({ isNightMode }) => {
                 ? 'bg-slate-800/95 border-white/50 text-white shadow-[0_0_15px_rgba(255,255,255,0.3)]'
                 : 'bg-white/90 border-black text-black'
                 }`}>
-                <h2 className={`text-2xl md:text-3xl font-pixel mb-6 md:mb-8 text-center border-b-4 pb-4 ${isNightMode ? 'border-white/50' : 'border-black'}`}>Portfolio Projects</h2>
+                <h2 className={`text-2xl md:text-3xl font-pixel mb-6 md:mb-8 text-center border-b-4 pb-4 ${isNightMode ? 'border-white/50' : 'border-black'}`}>Side Quests</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                     {projects.map((project, index) => (
                         <a

@@ -12,19 +12,19 @@ export const Home: React.FC<SectionProps> = ({ isNightMode }) => {
                 : 'bg-white/90 border-black text-black'
                 }`}>
                 <h1 className="text-3xl md:text-6xl font-pixel mb-4">Thanapat Pirmphol</h1>
-                <p className="text-lg md:text-2xl font-pixel mb-8">CTO | Certified Blockchain Developer | Innovator</p>
+                <p className="text-lg md:text-2xl font-pixel mb-8">Arcade Archive | Hands-on Engineering Backstory</p>
 
                 {/* Desktop Instructions */}
                 <div className="hidden md:flex items-center justify-center gap-2 font-sans text-lg">
                     <span className="px-2 py-1 bg-gray-200 text-black rounded border-2 border-gray-400 font-bold">SPACE</span>
                     <span>or</span>
                     <span className="px-2 py-1 bg-gray-200 text-black rounded border-2 border-gray-400 font-bold">↑</span>
-                    <span>to Fly</span>
+                    <span>to Explore</span>
                 </div>
 
                 {/* Mobile Instructions */}
                 <div className="flex md:hidden items-center justify-center gap-2 font-sans text-lg animate-pulse">
-                    <span className="font-bold">Tap to Fly</span>
+                    <span className="font-bold">Tap to Explore</span>
                 </div>
             </div>
         </div>
