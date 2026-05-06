@@ -57,6 +57,11 @@ button {
   min-height: 100svh;
   overflow: hidden;
   isolation: isolate;
+  background:
+    radial-gradient(ellipse at 72% 36%, rgba(96, 214, 255, 0.18), transparent 34rem),
+    radial-gradient(ellipse at 82% 18%, rgba(255, 209, 102, 0.09), transparent 26rem),
+    radial-gradient(ellipse at 58% 64%, rgba(118, 240, 183, 0.12), transparent 38rem),
+    linear-gradient(135deg, #020606 0%, #051012 42%, #070b16 100%);
 }
 
 .hero::before {
@@ -66,8 +71,30 @@ button {
   content: "";
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(2, 6, 6, 0.54) 0%, rgba(2, 6, 6, 0.34) 44%, rgba(2, 6, 6, 0.06) 100%),
+    radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.44) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 18% 72%, rgba(167, 255, 240, 0.36) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 46% 18%, rgba(255, 255, 255, 0.42) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 62% 74%, rgba(99, 217, 255, 0.42) 0 1px, transparent 1.8px),
+    radial-gradient(circle at 84% 26%, rgba(255, 209, 102, 0.38) 0 1px, transparent 1.7px),
+    radial-gradient(circle at 90% 66%, rgba(255, 255, 255, 0.35) 0 1px, transparent 1.6px),
+    conic-gradient(from 214deg at 74% 42%, transparent 0deg, rgba(99, 217, 255, 0.1) 46deg, rgba(177, 119, 255, 0.1) 74deg, rgba(255, 180, 95, 0.08) 112deg, transparent 164deg),
+    radial-gradient(ellipse at 74% 42%, rgba(99, 217, 255, 0.2) 0%, rgba(118, 240, 183, 0.11) 24%, rgba(177, 119, 255, 0.08) 42%, transparent 66%),
+    linear-gradient(90deg, rgba(2, 6, 6, 0.78) 0%, rgba(2, 6, 6, 0.46) 44%, rgba(2, 6, 6, 0.08) 100%),
     linear-gradient(180deg, rgba(2, 6, 6, 0.18), rgba(2, 6, 6, 0));
+  background-size:
+    34rem 34rem,
+    38rem 38rem,
+    30rem 30rem,
+    42rem 42rem,
+    36rem 36rem,
+    40rem 40rem,
+    auto,
+    auto,
+    auto,
+    auto;
+  opacity: 0.92;
+  animation: nebula-drift 34s ease-in-out infinite alternate;
+  will-change: background-position;
 }
 
 .hero::after {
@@ -83,14 +110,15 @@ button {
   position: absolute;
   inset: -8vh 0;
   z-index: -2;
-  opacity: 0.62;
+  opacity: 0.72;
   transform: translate3d(0, var(--parallax-bg), 0) scale(var(--parallax-scale));
   transform-origin: center top;
   will-change: transform;
   background:
-    radial-gradient(circle at 10% 16%, rgba(255, 180, 95, 0.045), transparent 22rem),
-    linear-gradient(90deg, rgba(2, 6, 6, 0.98) 0%, rgba(2, 6, 6, 0.72) 43%, rgba(2, 6, 6, 0.18) 100%),
-    radial-gradient(circle at 78% 34%, rgba(99, 217, 255, 0.11), transparent 32rem);
+    radial-gradient(ellipse at 76% 36%, rgba(99, 217, 255, 0.23), transparent 34rem),
+    radial-gradient(ellipse at 68% 54%, rgba(177, 119, 255, 0.08), transparent 32rem),
+    radial-gradient(circle at 10% 16%, rgba(255, 180, 95, 0.055), transparent 22rem),
+    linear-gradient(90deg, rgba(2, 6, 6, 0.98) 0%, rgba(2, 6, 6, 0.76) 42%, rgba(2, 6, 6, 0.2) 100%);
 }
 
 .three-scene canvas {
@@ -100,7 +128,7 @@ button {
 }
 
 .three-scene-fallback {
-  opacity: 0.28;
+  opacity: 0.5;
 }
 
 .three-scene-shell {
@@ -122,6 +150,36 @@ button {
 
   to {
     opacity: 1;
+  }
+}
+
+@keyframes nebula-drift {
+  from {
+    background-position:
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      center,
+      center,
+      center,
+      center;
+  }
+
+  to {
+    background-position:
+      1.2rem -0.8rem,
+      -1rem 0.9rem,
+      0.8rem 1.1rem,
+      -0.9rem -0.7rem,
+      1rem 0.6rem,
+      -1.1rem -0.8rem,
+      center,
+      center,
+      center,
+      center;
   }
 }
 
@@ -728,16 +786,31 @@ footer {
   }
 
   .three-scene {
-    opacity: 0.32;
+    opacity: 0.42;
     background:
-      linear-gradient(180deg, rgba(2, 6, 6, 0.96) 0%, rgba(2, 6, 6, 0.82) 54%, rgba(2, 6, 6, 0.48) 100%),
-      radial-gradient(circle at 78% 36%, rgba(99, 217, 255, 0.09), transparent 22rem);
+      radial-gradient(ellipse at 78% 24%, rgba(99, 217, 255, 0.18), transparent 22rem),
+      radial-gradient(ellipse at 62% 58%, rgba(177, 119, 255, 0.07), transparent 24rem),
+      linear-gradient(180deg, rgba(2, 6, 6, 0.96) 0%, rgba(2, 6, 6, 0.82) 54%, rgba(2, 6, 6, 0.48) 100%);
   }
 
   .hero::before {
     background:
-      linear-gradient(180deg, rgba(2, 6, 6, 0.48) 0%, rgba(2, 6, 6, 0.22) 64%, rgba(2, 6, 6, 0.08) 100%),
-      linear-gradient(90deg, rgba(2, 6, 6, 0.48), rgba(2, 6, 6, 0.12));
+      radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.36) 0 1px, transparent 1.6px),
+      radial-gradient(circle at 76% 22%, rgba(255, 209, 102, 0.34) 0 1px, transparent 1.7px),
+      radial-gradient(circle at 86% 64%, rgba(167, 255, 240, 0.3) 0 1px, transparent 1.6px),
+      radial-gradient(ellipse at 72% 26%, rgba(99, 217, 255, 0.15), transparent 24rem),
+      radial-gradient(ellipse at 54% 62%, rgba(177, 119, 255, 0.06), transparent 26rem),
+      linear-gradient(180deg, rgba(2, 6, 6, 0.62) 0%, rgba(2, 6, 6, 0.3) 64%, rgba(2, 6, 6, 0.08) 100%),
+      linear-gradient(90deg, rgba(2, 6, 6, 0.72), rgba(2, 6, 6, 0.2));
+    background-size:
+      28rem 28rem,
+      31rem 31rem,
+      34rem 34rem,
+      auto,
+      auto,
+      auto,
+      auto;
+    animation-duration: 42s;
   }
 
   .section-heading {
