@@ -1,56 +1,69 @@
 import { useEffect, useRef } from "react";
 import {
-  ACESFilmicToneMapping,
-  AmbientLight,
-  BufferAttribute,
-  BufferGeometry,
   Color,
-  DirectionalLight,
-  Group,
-  IcosahedronGeometry,
-  Line,
-  LineBasicMaterial,
   Mesh,
-  MeshPhysicalMaterial,
   PerspectiveCamera,
-  PMREMGenerator,
-  Points,
-  PointsMaterial,
+  PlaneGeometry,
+  Raycaster,
   Scene,
-  SphereGeometry,
-  TorusGeometry,
-  TorusKnotGeometry,
-  Vector3,
+  ShaderMaterial,
+  Vector2,
   WebGLRenderer,
 } from "three";
-import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-type SceneProps = { activeNode: string; paused: boolean };
-const palette: Record<string, number> = {
-  Water: 0xd2f65a,
-  Markets: 0xa9cbff,
-  Ledger: 0xc4a4ff,
-  "AI Delivery": 0xffb583,
-  Leadership: 0xefefe0,
-};
-
-export default function ThreeInfrastructureScene({
-  activeNode,
-  paused,
-}: SceneProps) {
+const vertexShader = `
+  uniform float uTime;
+  uniform vec2 uRipple;
+  uniform float uRippleTime;
+  varying vec3 vPosition;
+  float heightAt(vec2 p) {
+    float wave = sin(p.x * 2.3 + p.y * 1.8 + uTime * .55) * .055;
+    wave += sin(p.x * -1.4 + p.y * 3.5 - uTime * .7) * .035;
+    wave += sin(p.x * 5.1 + p.y * 2.1 + uTime * .85) * .018;
+    float age = uTime - uRippleTime;
+    float distanceToRipple = distance(p, uRipple);
+    float front = distanceToRipple - age * 1.1;
+    float envelope = exp(-front * front * 5.0) * exp(-age * .45);
+    wave += sin(front * 15.0) * envelope * .13;
+    return wave;
+  }
+  void main() {
+    vec3 p = position;
+    p.z = heightAt(p.xy);
+    vPosition = p;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);
+  }
+`;
+const fragmentShader = `
+  uniform vec3 uDeep;
+  uniform vec3 uLight;
+  varying vec3 vPosition;
+  void main() {
+    vec3 normal = normalize(cross(dFdx(vPosition), dFdy(vPosition)));
+    if (normal.z < 0.0) normal = -normal;
+    vec3 light = normalize(vec3(-.4, 1.0, 1.7));
+    vec3 view = normalize(vec3(0., -1.4, 2.1));
+    float diffuse = max(dot(normal, light), 0.0);
+    float fresnel = pow(1.0 - max(dot(normal, view), 0.0), 3.0);
+    float specular = pow(max(dot(normal, normalize(light + view)), 0.0), 100.0);
+    float ribbon = smoothstep(.93, .99, dot(reflect(-view, normal), light));
+    vec3 color = mix(uDeep, uLight, diffuse * .43 + vPosition.z * 1.1);
+    color = mix(color, vec3(.7, .85, .94), fresnel * .7);
+    color += vec3(.72, .88, 1.0) * specular * .72;
+    color += vec3(.5, .7, .83) * ribbon * .1;
+    gl_FragColor = vec4(color, 1.0);
+    #include <tonemapping_fragment>
+    #include <colorspace_fragment>
+  }
+`;
+export default function WaterScene({ paused }: { paused: boolean }) {
   const mountRef = useRef<HTMLDivElement>(null);
-  const activeRef = useRef(activeNode);
   const pausedRef = useRef(paused);
-  const renderRef = useRef<(() => void) | null>(null);
-  useEffect(() => {
-    activeRef.current = activeNode;
-    renderRef.current?.();
-  }, [activeNode]);
+  const wakeRef = useRef<(() => void) | null>(null);
   useEffect(() => {
     pausedRef.current = paused;
-    renderRef.current?.();
+    wakeRef.current?.();
   }, [paused]);
-
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
@@ -62,217 +75,107 @@ export default function ThreeInfrastructureScene({
         powerPreference: "low-power",
       });
     } catch {
-      mount.classList.add("scene-unavailable");
-      mount.textContent = "∞";
+      mount.classList.add("water-fallback");
+      mount.textContent = "Water";
       return () => {
         mount.textContent = "";
-        mount.classList.remove("scene-unavailable");
+        mount.classList.remove("water-fallback");
       };
     }
-    renderer.setPixelRatio(
-      Math.min(window.devicePixelRatio, window.innerWidth < 700 ? 1.3 : 1.75),
-    );
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
-    renderer.toneMapping = ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.15;
     mount.appendChild(renderer.domElement);
     const scene = new Scene();
     const camera = new PerspectiveCamera(
-      37,
+      38,
       mount.clientWidth / mount.clientHeight,
       0.1,
       40,
     );
-    camera.position.set(0, 0, 9.3);
-    const environment = new RoomEnvironment();
-    const pmrem = new PMREMGenerator(renderer);
-    const environmentMap = pmrem.fromScene(environment, 0.04);
-    scene.environment = environmentMap.texture;
-    environment.dispose();
-    pmrem.dispose();
-    scene.add(new AmbientLight(0xe8f6c9, 1.5));
-    const key = new DirectionalLight(0xf6ffea, 4);
-    key.position.set(2, 4, 5);
-    const rim = new DirectionalLight(0xd2f65a, 3);
-    rim.position.set(-4, 1, -2);
-    scene.add(key, rim);
-    const sculpture = new Group();
-    sculpture.rotation.set(0.2, -0.25, -0.35);
-    scene.add(sculpture);
-    const chrome = new MeshPhysicalMaterial({
-      color: 0xc9d1bc,
-      metalness: 1,
-      roughness: 0.22,
-      clearcoat: 1,
-      clearcoatRoughness: 0.14,
-      envMapIntensity: 1.8,
+    camera.position.set(0, 3.4, 4.8);
+    camera.lookAt(0, 0, 0);
+    const material = new ShaderMaterial({
+      vertexShader,
+      fragmentShader,
+      uniforms: {
+        uTime: { value: 0 },
+        uRipple: { value: new Vector2(0, 0) },
+        uRippleTime: { value: -100 },
+        uDeep: { value: new Color("#0b4a7b") },
+        uLight: { value: new Color("#63b8d4") },
+      },
     });
-    const knot = new Mesh(
-      new TorusKnotGeometry(1.25, 0.39, 180, 24, 2, 3),
-      chrome,
-    );
-    sculpture.add(knot);
-    const wireMaterial = new MeshPhysicalMaterial({
-      color: 0xd2f65a,
-      metalness: 0.4,
-      roughness: 0.3,
-      emissive: 0xd2f65a,
-      emissiveIntensity: 0.17,
-      wireframe: true,
-      transparent: true,
-      opacity: 0.2,
-    });
-    const shell = new Mesh(
-      new TorusKnotGeometry(1.25, 0.43, 100, 12, 2, 3),
-      wireMaterial,
-    );
-    sculpture.add(shell);
-    const orbitGroup = new Group();
-    scene.add(orbitGroup);
-    const orbitMaterial = new LineBasicMaterial({
-      color: 0xd2f65a,
-      transparent: true,
-      opacity: 0.3,
-    });
-    for (let i = 0; i < 3; i++) {
-      const vertices = Array.from(
-        { length: 161 },
-        (_, n) =>
-          new Vector3(
-            Math.cos((n / 160) * Math.PI * 2) * (2.2 + i * 0.15),
-            Math.sin((n / 160) * Math.PI * 2) * (2.2 + i * 0.15),
-            0,
-          ),
-      );
-      const orbit = new Line(
-        new BufferGeometry().setFromPoints(vertices),
-        orbitMaterial,
-      );
-      orbit.rotation.set(0.75 + i * 0.35, 0.35 + i * 0.65, -0.3);
-      orbitGroup.add(orbit);
-    }
-    const satelliteMaterial = new MeshPhysicalMaterial({
-      color: 0xd2f65a,
-      roughness: 0.28,
-      metalness: 0.55,
-      emissive: 0xd2f65a,
-      emissiveIntensity: 0.1,
-    });
-    const satellite = new Mesh(
-      new IcosahedronGeometry(0.22, 2),
-      satelliteMaterial,
-    );
-    scene.add(satellite);
-    const smaller = new Mesh(new SphereGeometry(0.09, 16, 12), chrome);
-    scene.add(smaller);
-    const hoop = new Mesh(
-      new TorusGeometry(2.76, 0.006, 6, 100),
-      satelliteMaterial,
-    );
-    hoop.rotation.set(1.2, 0.6, -0.6);
-    scene.add(hoop);
-    const positions = new Float32Array(90 * 3);
-    for (let i = 0; i < positions.length; i++)
-      positions[i] = Math.sin(i * 93.7 + 12.3) * 3.8;
-    const dustGeometry = new BufferGeometry();
-    dustGeometry.setAttribute("position", new BufferAttribute(positions, 3));
-    const dust = new Points(
-      dustGeometry,
-      new PointsMaterial({
-        color: 0xb6c694,
-        size: 0.016,
-        transparent: true,
-        opacity: 0.4,
-      }),
-    );
-    scene.add(dust);
-    let targetX = 0,
-      targetY = 0,
-      elapsed = 0,
+    const geometry = new PlaneGeometry(16, 5, 200, 90);
+    const surface = new Mesh(geometry, material);
+    surface.rotation.x = -Math.PI / 2;
+    scene.add(surface);
+    const raycaster = new Raycaster();
+    const pointer = new Vector2();
+    let frame = 0,
       lastTime = 0,
-      frame = 0;
-    let visible = true,
-      lost = false,
-      disposed = false;
-    const accent = new Color();
+      elapsed = 0,
+      visible = true,
+      disposed = false,
+      lost = false;
     const draw = () => {
-      if (disposed || lost) return;
-      accent.set(palette[activeRef.current] ?? palette.Water);
-      satelliteMaterial.color.copy(accent);
-      satelliteMaterial.emissive.copy(accent);
-      wireMaterial.color.copy(accent);
-      wireMaterial.emissive.copy(accent);
-      orbitMaterial.color.copy(accent);
-      const angle = elapsed * 0.22;
-      satellite.position.set(
-        Math.cos(angle + 0.3) * 2.35,
-        Math.sin(angle + 0.3) * 1.3,
-        Math.sin(angle) * 1.3,
-      );
-      smaller.position.set(
-        Math.cos(angle + 3.8) * 2.6,
-        Math.sin(angle + 3.8) * 1.8,
-        -0.4,
-      );
-      renderer.render(scene, camera);
+      if (!lost && !disposed) renderer.render(scene, camera);
     };
     const animate = (time: number) => {
       frame = 0;
       if (
         disposed ||
         lost ||
+        pausedRef.current ||
         !visible ||
-        document.hidden ||
-        pausedRef.current
+        document.hidden
       ) {
         lastTime = 0;
         return;
       }
-      const delta = lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 0;
+      elapsed += lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 0;
       lastTime = time;
-      elapsed += delta;
-      knot.rotation.y = elapsed * 0.14;
-      knot.rotation.z = Math.sin(elapsed * 0.2) * 0.09;
-      shell.rotation.copy(knot.rotation);
-      sculpture.rotation.y +=
-        (targetX * 0.28 - 0.25 - sculpture.rotation.y) * 0.025;
-      sculpture.rotation.x +=
-        (targetY * 0.2 + 0.2 - sculpture.rotation.x) * 0.025;
-      sculpture.position.y = Math.sin(elapsed * 0.65) * 0.08;
-      orbitGroup.rotation.y = elapsed * 0.035;
+      material.uniforms.uTime.value = elapsed;
       draw();
       frame = requestAnimationFrame(animate);
     };
     const wake = () => {
       draw();
-      if (!frame && visible && !document.hidden && !pausedRef.current && !lost)
+      if (!frame && !pausedRef.current && visible && !document.hidden && !lost)
         frame = requestAnimationFrame(animate);
     };
-    renderRef.current = wake;
-    const pointerMove = (event: PointerEvent) => {
-      if (pausedRef.current || event.pointerType === "touch") return;
+    wakeRef.current = wake;
+    let lastRipple = -10;
+    const ripple = (event: PointerEvent) => {
+      if (
+        pausedRef.current ||
+        (event.type === "pointermove" && elapsed - lastRipple < 0.6)
+      )
+        return;
       const bounds = mount.getBoundingClientRect();
-      targetX = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
-      targetY = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
-    };
-    const pointerLeave = () => {
-      targetX = 0;
-      targetY = 0;
+      pointer.set(
+        ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
+        (-(event.clientY - bounds.top) / bounds.height) * 2 + 1,
+      );
+      raycaster.setFromCamera(pointer, camera);
+      const intersection = raycaster.intersectObject(surface)[0];
+      if (!intersection) return;
+      const local = surface.worldToLocal(intersection.point);
+      material.uniforms.uRipple.value.set(local.x, local.y);
+      material.uniforms.uRippleTime.value = elapsed;
+      lastRipple = elapsed;
+      wake();
     };
     const resize = new ResizeObserver(() => {
       if (!mount.clientWidth || !mount.clientHeight) return;
       camera.aspect = mount.clientWidth / mount.clientHeight;
-      camera.position.z = camera.aspect < 1 ? 10.5 : 9.3;
       camera.updateProjectionMatrix();
       renderer.setSize(mount.clientWidth, mount.clientHeight);
       wake();
     });
-    resize.observe(mount);
-    const visibility = new IntersectionObserver(([entry]) => {
+    const observer = new IntersectionObserver(([entry]) => {
       visible = entry.isIntersecting;
       if (visible) wake();
     });
-    visibility.observe(mount);
     const contextLost = (event: Event) => {
       event.preventDefault();
       lost = true;
@@ -288,35 +191,31 @@ export default function ThreeInfrastructureScene({
       "webglcontextrestored",
       contextRestored,
     );
-    mount.addEventListener("pointermove", pointerMove);
-    mount.addEventListener("pointerleave", pointerLeave);
+    mount.addEventListener("pointermove", ripple, { passive: true });
+    mount.addEventListener("pointerdown", ripple, { passive: true });
     document.addEventListener("visibilitychange", wake);
+    resize.observe(mount);
+    observer.observe(mount);
     wake();
     return () => {
       disposed = true;
-      renderRef.current = null;
+      wakeRef.current = null;
       cancelAnimationFrame(frame);
       resize.disconnect();
-      visibility.disconnect();
-      mount.removeEventListener("pointermove", pointerMove);
-      mount.removeEventListener("pointerleave", pointerLeave);
+      observer.disconnect();
+      mount.removeEventListener("pointermove", ripple);
+      mount.removeEventListener("pointerdown", ripple);
       document.removeEventListener("visibilitychange", wake);
       renderer.domElement.removeEventListener("webglcontextlost", contextLost);
       renderer.domElement.removeEventListener(
         "webglcontextrestored",
         contextRestored,
       );
-      scene.traverse((object) => {
-        const renderable = object as Mesh;
-        renderable.geometry?.dispose();
-        if (Array.isArray(renderable.material))
-          renderable.material.forEach((material) => material.dispose());
-        else renderable.material?.dispose();
-      });
-      environmentMap.dispose();
+      geometry.dispose();
+      material.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
   }, []);
-  return <div className="three-scene" ref={mountRef} aria-hidden="true" />;
+  return <div ref={mountRef} className="three-scene" aria-hidden="true" />;
 }

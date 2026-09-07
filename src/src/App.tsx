@@ -1,98 +1,77 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import {
-  buildPillars,
   experience,
   projects,
   quickFacts,
   skills,
   systemNodes,
 } from "./content";
-const ThreeInfrastructureScene = lazy(
-  () => import("./components/ThreeInfrastructureScene"),
-);
-const nodeCopy: Record<string, string> = {
+const WaterScene = lazy(() => import("./components/ThreeInfrastructureScene"));
+const focusNotes: Record<string, string> = {
   Water:
-    "Making every drop accountable. Digital infrastructure for water markets and stewardship.",
+    "Water markets, accounting, and stewardship at Water Ledger. Making resource decisions easier to understand and audit.",
   Markets:
-    "Connecting people, resources, and transparent records to build confidence in every exchange.",
+    "Transparent records and clear workflows that give people confidence in an exchange.",
   Ledger:
-    "Shared records. Verifiable actions. Blockchain grounded in real coordination problems.",
+    "Blockchain for shared records, regulated workflows, and the practical problem of coordinating trust.",
   "AI Delivery":
-    "Turning intent into working systems with agents, clear specifications, and human judgment.",
+    "Agentic tools, clear specifications, and engineering review. New ways to deliver software while keeping people accountable.",
   Leadership:
-    "Connecting technical depth with product direction. Building teams that can deliver both.",
+    "Hands-on architecture, product decisions, and teams that can turn an uncertain problem into a working platform.",
 };
-function Arrow({ diagonal = false }: { diagonal?: boolean }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d={diagonal ? "M5 19 19 5M5 5h14v14" : "M4 12h16m-6-6 6 6-6 6"}
-        stroke="currentColor"
-        strokeWidth="1.5"
-      />
-    </svg>
-  );
+function Arrow() {
+  return <span aria-hidden="true">↗</span>;
 }
-function App() {
-  const [activeNode, setActiveNode] = useState("Water");
+export default function App() {
   const [paused, setPaused] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
+  const [activeFocus, setActiveFocus] = useState("Water");
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
-    if (!menuOpen) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setMenuOpen(false);
-        document.querySelector<HTMLButtonElement>(".menu-toggle")?.focus();
-      }
-    };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [menuOpen]);
-  useEffect(() => {
-    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const syncMotion = () => setPaused(media.matches);
-    media.addEventListener("change", syncMotion);
-    return () => media.removeEventListener("change", syncMotion);
+    const media = matchMedia("(prefers-reduced-motion: reduce)");
+    const change = () => setPaused(media.matches);
+    media.addEventListener("change", change);
+    return () => media.removeEventListener("change", change);
   }, []);
   useEffect(() => {
     document.documentElement.dataset.motion = paused ? "off" : "on";
-    const observer = new IntersectionObserver(
-      (entries) =>
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("revealed");
-            observer.unobserve(entry.target);
-          }
-        }),
-      { threshold: 0.08 },
-    );
-    document
-      .querySelectorAll("[data-reveal]")
-      .forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
   }, [paused]);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+        document.querySelector<HTMLButtonElement>(".menu-button")?.focus();
+      }
+    };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [menuOpen]);
   return (
     <>
       <a className="skip-link" href="#main">
         Skip to content
       </a>
       <header className="site-header">
-        <a className="brand" href="#top" aria-label="Thanapat Pirmphol home">
-          oadtz<span className="brand-dot">.</span>
+        <a href="#top" className="wordmark" aria-label="Thanapat Pirmphol home">
+          oadtz
         </a>
-        <nav
-          aria-label="Main navigation"
-          className={menuOpen ? "nav open" : "nav"}
+        <p className="header-note">Engineering, with a human point of view.</p>
+        <button
+          className="menu-button"
+          aria-expanded={menuOpen}
+          aria-controls="navigation"
+          onClick={() => setMenuOpen(!menuOpen)}
         >
-          {["Work", "About", "Experience"].map((item) => (
+          {menuOpen ? "Close" : "Menu"}
+        </button>
+        <nav
+          id="navigation"
+          className={menuOpen ? "open" : ""}
+          aria-label="Main navigation"
+        >
+          {["Work", "About", "Experience", "Contact"].map((item) => (
             <a
               key={item}
               href={`#${item.toLowerCase()}`}
@@ -101,275 +80,181 @@ function App() {
               {item}
             </a>
           ))}
-          <a
-            className="nav-contact"
-            href="#contact"
-            onClick={() => setMenuOpen(false)}
-          >
-            Let’s connect <Arrow diagonal />
-          </a>
         </nav>
-        <button
-          className="menu-toggle"
-          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-          aria-expanded={menuOpen}
-          onClick={() => setMenuOpen(!menuOpen)}
-        >
-          {menuOpen ? "Close −" : "Menu +"}
-        </button>
       </header>
       <main id="main">
-        <section className="hero" id="top" aria-labelledby="hero-title">
-          <div className="hero-topline">
-            <span>
-              <i className="status-dot" /> ENGINEER. LEADER. BUILDER.
-            </span>
-            <span className="hero-index">PERSONAL PORTFOLIO / 2026</span>
-          </div>
-          <div className="hero-body">
-            <div className="hero-copy">
-              <p className="eyebrow name-label">THANAPAT PIRMPHOL</p>
-              <h1 id="hero-title">
-                Complex
-                <br />
-                systems.
-                <br />
-                <span className="serif-word">Real</span>{" "}
-                <span className="accent">impact.</span>
-              </h1>
-              <p className="hero-description">
-                I build trusted digital infrastructure.
-                <br />
-                For water. For markets. For what comes next.
-              </p>
-              <a className="button primary" href="#work">
-                Explore my work <Arrow />
-              </a>
-            </div>
-            <div className="hero-visual">
-              <div className="scene-grid" aria-hidden="true" />
-              <div className="scene-coordinates" aria-hidden="true">
-                <span>FIG. 01 — CONNECTED SYSTEMS</span>
-                <span>∞</span>
-              </div>
-              <Suspense
-                fallback={
-                  <div className="scene-loading">Connecting the dots…</div>
-                }
-              >
-                <ThreeInfrastructureScene
-                  activeNode={activeNode}
-                  paused={paused}
-                />
-              </Suspense>
-              <div className="scene-caption">
-                <span>
-                  <i className="status-dot" /> {activeNode.toUpperCase()}
-                </span>
-                <button
-                  className="motion-toggle"
-                  onClick={() => setPaused(!paused)}
-                  aria-pressed={paused}
-                  aria-label={paused ? "Enable animation" : "Pause animation"}
-                >
-                  {paused ? "Play motion" : "Pause motion"}{" "}
-                  <span aria-hidden="true">{paused ? "▷" : "Ⅱ"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="hero-bottom">
-            <p>
-              Currently shaping the future of water
+        <section className="introduction" id="top" aria-labelledby="hero-title">
+          <div className="name-block">
+            <p className="intro-note">Hi, I’m Thanapat.</p>
+            <h1 id="hero-title">
+              Thanapat
               <br />
-              <strong>CTO @ Water Ledger Global</strong>
+              <span>Pirmphol</span>
+              <span className="name-period">.</span>
+            </h1>
+          </div>
+          <figure className="portrait">
+            <img
+              src="/profile.jpg"
+              alt="Thanapat Pirmphol"
+              width="590"
+              height="590"
+              fetchPriority="high"
+            />
+            <figcaption>
+              <span>Thanapat Pirmphol</span>
+              <span>oadtz</span>
+            </figcaption>
+          </figure>
+          <div className="intro-copy">
+            <p className="role">CTO at Water Ledger Global</p>
+            <p>
+              I’m an engineer who likes getting to the bottom of complicated
+              things. Then building something people can actually use.
             </p>
-            <a href="#about" className="scroll-cue">
-              <span>SCROLL TO DISCOVER</span>
-              <span aria-hidden="true">↓</span>
+            <p>
+              These days, I work on water: how it’s accounted for, traded, and
+              managed. Before that, enterprise systems, blockchain, and the
+              teams behind them.
+            </p>
+            <a href="#work" className="inline-link">
+              A few things I’ve worked on <span aria-hidden="true">↓</span>
             </a>
-            <span className="hero-bottom-note">
-              20+ YEARS OF BUILDING
-              <br />
-              ALWAYS EXPLORING.
-            </span>
           </div>
-        </section>
-        <section
-          className="exploration"
-          aria-label="Explore areas of expertise"
-        >
-          <div className="exploration-label">
-            <span className="eyebrow">THE CONNECTED THREADS</span>
-            <span className="small-muted">Choose a focus</span>
-          </div>
-          <div className="node-list">
-            {systemNodes.map((node, i) => (
-              <button
-                key={node}
-                className={activeNode === node ? "node active" : "node"}
-                aria-pressed={activeNode === node}
-                onClick={() => setActiveNode(node)}
-              >
-                <span className="node-index">0{i + 1}</span>
-                {node}
-                <span className="node-plus" aria-hidden="true">
-                  {activeNode === node ? "−" : "+"}
-                </span>
-              </button>
-            ))}
-          </div>
-          <p className="node-description" aria-live="polite">
-            {nodeCopy[activeNode]}
-          </p>
-        </section>
-        <section
-          className="section work"
-          id="work"
-          aria-labelledby="work-title"
-        >
-          <div className="section-heading" data-reveal>
-            <p className="eyebrow">01 / SELECTED WORK</p>
-            <div>
-              <h2 id="work-title">
-                Ideas into
-                <br />
-                <span className="serif-word">infrastructure.</span>
-              </h2>
-              <p>
-                Real problems. Working platforms.
-                <br />A few places I’ve made a difference.
-              </p>
-            </div>
-          </div>
-          <div className="project-grid">
-            {projects.map((project, index) => (
-              <a
-                className={`project-card project-${index}`}
-                key={project.name}
-                href={project.url}
-                target="_blank"
-                rel="noreferrer"
-                data-reveal
-              >
-                <div className="project-art" aria-hidden="true">
-                  <span className="project-number">
-                    0{index + 1} /{" "}
-                    {
-                      [
-                        "WATER & SUSTAINABILITY",
-                        "COMMUNITY & IMPACT",
-                        "TRUST & GOVERNANCE",
-                        "SYSTEMS AT SCALE",
-                      ][index]
-                    }
-                  </span>
-                  {index === 0 ? (
-                    <div className="water-mark">
-                      water<span>ledger</span>
-                      <i>↗</i>
-                    </div>
-                  ) : index === 1 ? (
-                    <div className="tapin-mark">
-                      <span className="crosshair">+</span>TapIn
-                      <span className="tapin-caption">
-                        Every report. A clearer picture.
-                      </span>
-                    </div>
-                  ) : index === 2 ? (
-                    <div className="civic-mark">
-                      civic
-                      <span>
-                        ledger<span className="accent">_</span>
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="enterprise-mark">
-                      <span>Ideas.</span>
-                      <span>People.</span>
-                      <span>Platforms.</span>
-                    </div>
-                  )}
-                  <span className="project-open">
-                    <Arrow diagonal />
-                  </span>
-                </div>
-                <div className="project-details">
-                  <div>
-                    <h3>{project.name}</h3>
-                    <span>{project.role}</span>
-                  </div>
-                  <p>{project.description}</p>
-                  <span className="project-signal">{project.signal}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section>
-        <section
-          className="section about"
-          id="about"
-          aria-labelledby="about-title"
-        >
-          <div className="about-portrait" data-reveal>
-            <div className="portrait-frame">
-              <img
-                src="/profile.jpg"
-                alt="Thanapat Pirmphol"
-                loading="lazy"
-                width="590"
-                height="590"
-              />
-              <span className="portrait-cross" aria-hidden="true">
-                +
-              </span>
-            </div>
-            <div className="portrait-caption">
-              <span>THANAPAT PIRMPHOL</span>
-              <span>AKA. OADTZ</span>
-            </div>
-            <div className="experience-stat">
-              <strong>
-                20<span>+</span>
-              </strong>
-              <span>
-                years connecting technology
-                <br />
-                with the real world
-              </span>
-            </div>
-          </div>
-          <div className="about-copy" data-reveal>
-            <p className="eyebrow">02 / THE PERSON BEHIND THE SYSTEMS</p>
-            <h2 id="about-title">
-              An engineer’s mind.
-              <br />A builder’s <span className="serif-word">instinct.</span>
-            </h2>
-            <p>
-              I work where software becomes infrastructure — where trust,
-              reliability, and adoption matter as much as the code.
-            </p>
-            <p>
-              My work connects blockchain, sustainable resource management,
-              enterprise platforms, and engineering leadership. Today, that
-              means building water markets, accounting, and stewardship at Water
-              Ledger.
-            </p>
-            <p>
-              I like making complex systems understandable, usable, and
-              dependable enough for people to build decisions on top of them.
-            </p>
+          <div className="intro-margin">
+            <span>Software · Systems · People</span>
             <a
-              className="text-link"
               href="https://www.linkedin.com/in/thanapatpirmphol/"
               target="_blank"
               rel="noreferrer"
             >
-              More about my journey <Arrow diagonal />
+              Find me on LinkedIn <Arrow />
             </a>
+          </div>
+        </section>
+        <section className="water-feature" aria-labelledby="water-title">
+          <div className="water-heading">
+            <div>
+              <p className="section-label">MY CURRENT CHAPTER</p>
+              <h2 id="water-title">
+                Water is a shared resource.
+                <br />
+                Its records should be clear.
+              </h2>
+            </div>
+            <a
+              href="https://www.waterledger.com"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Water Ledger <Arrow />
+            </a>
+          </div>
+          <div className="water-window">
+            <Suspense fallback={<div className="water-fallback">Water</div>}>
+              <WaterScene paused={paused} />
+            </Suspense>
+            <div className="water-caption">
+              <span>Move across the water to make a ripple.</span>
+              <button onClick={() => setPaused(!paused)} aria-pressed={paused}>
+                {paused ? "Resume motion" : "Pause motion"}
+              </button>
+            </div>
+          </div>
+          <div className="water-footnote">
+            <p>
+              A surface of connected ripples — a small illustration of a shared
+              resource. My work is the infrastructure underneath: water
+              accounting, market activity, and records people can trust.
+            </p>
+            <span>
+              Water Ledger Global
+              <br />
+              Chief Technology Officer · 2024–present
+            </span>
+          </div>
+        </section>
+        <section
+          className="work-section"
+          id="work"
+          aria-labelledby="work-title"
+        >
+          <div className="section-title">
+            <h2 id="work-title">Some of the work.</h2>
+            <p>Different domains. The same curiosity.</p>
+          </div>
+          <div className="work-list">
+            {projects.map((project, i) => (
+              <article key={project.name} className="work-item">
+                <span className="work-index">0{i + 1}</span>
+                <div className="work-name">
+                  <h3>
+                    <a href={project.url} target="_blank" rel="noreferrer">
+                      {project.name} <Arrow />
+                    </a>
+                  </h3>
+                  <p>{project.role}</p>
+                </div>
+                <div className="work-description">
+                  <p>{project.description}</p>
+                  <span>{project.signal}</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+        <section
+          className="about-section"
+          id="about"
+          aria-labelledby="about-title"
+        >
+          <div className="about-heading">
+            <p className="section-label">A LITTLE CONTEXT</p>
+            <h2 id="about-title">
+              Still an engineer.
+              <br />
+              Still curious.
+            </h2>
+            <p className="years">
+              20+ <span>years in software</span>
+            </p>
+          </div>
+          <div className="about-body">
+            <p className="large-copy">
+              The code is only part of the system. People need to understand it,
+              operate it, and trust what comes out of it.
+            </p>
+            <p>
+              That has been the common thread through my work in enterprise
+              software, aviation, insurance, data platforms, public-sector
+              blockchain, and water infrastructure.
+            </p>
+            <p>
+              As a CTO, I move between architecture and product decisions,
+              hands-on engineering and team leadership. I’m also exploring how
+              AI agents can help us deliver better software with clear
+              specifications and thoughtful review.
+            </p>
+            <div className="focus">
+              <h3>What I spend time thinking about</h3>
+              <div className="focus-buttons">
+                {systemNodes.map((node) => (
+                  <button
+                    key={node}
+                    onClick={() => setActiveFocus(node)}
+                    aria-pressed={activeFocus === node}
+                  >
+                    {node}
+                  </button>
+                ))}
+              </div>
+              <p className="focus-note" aria-live="polite">
+                {focusNotes[activeFocus]}
+              </p>
+            </div>
             <details className="profile-facts">
               <summary>
-                Profile at a glance <span aria-hidden="true">+</span>
+                Profile & technical toolkit <span aria-hidden="true">+</span>
               </summary>
               <dl>
                 {quickFacts.map(([label, value]) => (
@@ -379,78 +264,32 @@ function App() {
                   </div>
                 ))}
               </dl>
+              <p className="skills">{skills.join(" / ")}</p>
             </details>
           </div>
         </section>
         <section
-          className="section approach"
-          id="leadership"
-          aria-labelledby="approach-title"
-        >
-          <div className="section-heading" data-reveal>
-            <p className="eyebrow">03 / HOW I THINK</p>
-            <div>
-              <h2 id="approach-title">
-                Build with purpose.
-                <br />
-                <span className="serif-word">Lead with clarity.</span>
-              </h2>
-              <p>
-                Hands-on engineering depth.
-                <br />
-                The operating judgment of a CTO.
-              </p>
-            </div>
-          </div>
-          <div className="pillar-grid">
-            {buildPillars.map((pillar, index) => (
-              <article className="pillar" data-reveal key={pillar.title}>
-                <span className="pillar-number">[ 0{index + 1} ]</span>
-                <h3>{pillar.title}</h3>
-                <p>{pillar.body}</p>
-              </article>
-            ))}
-          </div>
-          <div
-            className="skill-cloud"
-            aria-label="Technical and leadership skills"
-          >
-            {skills.map((skill) => (
-              <span key={skill}>{skill}</span>
-            ))}
-          </div>
-        </section>
-        <section
-          className="section experience"
+          className="experience-section"
           id="experience"
           aria-labelledby="experience-title"
         >
-          <div className="section-heading" data-reveal>
-            <p className="eyebrow">04 / THE JOURNEY</p>
-            <div>
-              <h2 id="experience-title">
-                Always <span className="serif-word">building.</span>
-              </h2>
-              <p>
-                From enterprise systems to
-                <br />
-                the next generation of infrastructure.
-              </p>
-            </div>
+          <div className="section-title">
+            <h2 id="experience-title">The longer story.</h2>
+            <a
+              className="inline-link"
+              href="https://www.linkedin.com/in/thanapatpirmphol/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Full experience on LinkedIn <Arrow />
+            </a>
           </div>
           <div className="timeline">
-            {experience.map(([period, role, company], index) => (
-              <article className="timeline-row" data-reveal key={period}>
-                <span className="timeline-period">{period}</span>
-                <div>
-                  <h3>{role}</h3>
-                  <p>{company}</p>
-                </div>
-                <span
-                  className={index === 0 ? "current-badge" : "timeline-counter"}
-                >
-                  {index === 0 ? "CURRENT" : `0${experience.length - index}`}
-                </span>
+            {experience.map(([period, role, company]) => (
+              <article className="timeline-row" key={period}>
+                <span>{period}</span>
+                <h3>{company}</h3>
+                <p>{role}</p>
               </article>
             ))}
           </div>
@@ -460,60 +299,46 @@ function App() {
           id="contact"
           aria-labelledby="contact-title"
         >
-          <div className="contact-top">
-            <p className="eyebrow">HAVE A COMPLEX PROBLEM WORTH SOLVING?</p>
-            <span aria-hidden="true">✳</span>
-          </div>
-          <h2 id="contact-title">
-            Let’s build
-            <br />
-            <span className="serif-word">what’s next.</span>
-          </h2>
-          <div className="contact-bottom">
-            <p>
-              Water. Blockchain. AI. Technology leadership.
+          <p className="section-label">CONTINUE THE CONVERSATION</p>
+          <div>
+            <h2 id="contact-title">
+              What are you
               <br />
-              Good conversations are where good systems start.
-            </p>
-            <div className="contact-actions">
+              working on?
+            </h2>
+            <div className="contact-copy">
+              <p>
+                I’m always interested in the problems behind the technology.
+                Especially water, blockchain, AI, and the work of leading
+                engineering teams.
+              </p>
               <a
-                className="button dark"
                 href="https://www.linkedin.com/in/thanapatpirmphol/"
                 target="_blank"
                 rel="noreferrer"
               >
-                Connect on LinkedIn <Arrow diagonal />
+                Say hello on LinkedIn <Arrow />
               </a>
               <a
-                className="github-link"
                 href="https://www.github.com/oadtz"
                 target="_blank"
                 rel="noreferrer"
               >
-                GitHub <Arrow diagonal />
+                Look around my GitHub <Arrow />
               </a>
             </div>
           </div>
         </section>
       </main>
       <footer>
-        <a className="brand" href="#top">
-          oadtz<span className="brand-dot">.</span>
+        <a className="wordmark" href="#top">
+          oadtz
         </a>
         <span>© {new Date().getFullYear()} Thanapat Pirmphol</span>
-        <div>
-          <a
-            className="arcade-easter-egg"
-            href="/flappybird/"
-            aria-label="Play the arcade archive"
-            title="A little play, between the serious work"
-          >
-            ↗ PLAY
-          </a>
-          <a href="#top">Back to top ↑</a>
-        </div>
+        <a href="/flappybird/">
+          And sometimes, I make games. <Arrow />
+        </a>
       </footer>
     </>
   );
 }
-export default App;
