@@ -1,6 +1,6 @@
 # Thanapat Pirmphol
 
-Thanapat Pirmphol is a CTO, blockchain engineer, and product-minded builder focused on trusted digital infrastructure for water markets, regulated systems, sustainable systems, and agentic AI engineering workflows.
+Thanapat Pirmphol is a CTO and software engineer with 20+ years of experience across enterprise architecture, blockchain, AI delivery, and engineering leadership. He also enjoys photography and gaming.
 
 ## Canonical URL
 
@@ -30,3 +30,6 @@ Chief Technology Officer at Water Ledger Global.
 ## Contact
 
 LinkedIn: https://www.linkedin.com/in/thanapatpirmphol/
+
+## Beyond engineering
+Thanapat also enjoys photography and gaming. His photography is shared on Pixabay as oadtz: https://pixabay.com/users/oadtz-3657813/

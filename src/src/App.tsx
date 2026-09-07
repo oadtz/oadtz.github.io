@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   experience,
   projects,
@@ -6,7 +6,9 @@ import {
   skills,
   systemNodes,
 } from "./content";
-const WaterScene = lazy(() => import("./components/ThreeInfrastructureScene"));
+import Icon from "./components/Icon";
+import PhotoCollection from "./components/PhotoCollection";
+import { photographs } from "./photographs";
 const focusNotes: Record<string, string> = {
   Water:
     "Water markets, accounting, and stewardship at Water Ledger. Making resource decisions easier to understand and audit.",
@@ -19,14 +21,11 @@ const focusNotes: Record<string, string> = {
   Leadership:
     "Hands-on architecture, product decisions, and teams that can turn an uncertain problem into a working platform.",
 };
-function Arrow() {
-  return <span aria-hidden="true">↗</span>;
-}
 export default function App() {
   const [paused, setPaused] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
-  const [activeFocus, setActiveFocus] = useState("Water");
+  const [activeFocus, setActiveFocus] = useState("Leadership");
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
@@ -57,13 +56,14 @@ export default function App() {
         <a href="#top" className="wordmark" aria-label="Thanapat Pirmphol home">
           oadtz
         </a>
-        <p className="header-note">Engineering, with a human point of view.</p>
+        <p className="header-note">Engineer. Photographer. Player.</p>
         <button
           className="menu-button"
           aria-expanded={menuOpen}
           aria-controls="navigation"
           onClick={() => setMenuOpen(!menuOpen)}
         >
+          <Icon name={menuOpen ? "close" : "menu"} />{" "}
           {menuOpen ? "Close" : "Menu"}
         </button>
         <nav
@@ -71,7 +71,7 @@ export default function App() {
           className={menuOpen ? "open" : ""}
           aria-label="Main navigation"
         >
-          {["Work", "About", "Experience", "Contact"].map((item) => (
+          {["Work", "Photography", "About", "Contact"].map((item) => (
             <a
               key={item}
               href={`#${item.toLowerCase()}`}
@@ -107,71 +107,39 @@ export default function App() {
             </figcaption>
           </figure>
           <div className="intro-copy">
-            <p className="role">CTO at Water Ledger Global</p>
+            <p className="role">CTO · Software engineer · Curious by nature</p>
             <p>
               I’m an engineer who likes getting to the bottom of complicated
               things. Then building something people can actually use.
             </p>
             <p>
-              These days, I work on water: how it’s accounted for, traded, and
-              managed. Before that, enterprise systems, blockchain, and the
-              teams behind them.
+              My work spans software architecture, blockchain, AI, and
+              engineering leadership. Away from the keyboard, I’m usually
+              looking through a camera — or playing a game.
             </p>
             <a href="#work" className="inline-link">
-              A few things I’ve worked on <span aria-hidden="true">↓</span>
+              A few things I’ve worked on <Icon name="down" />
             </a>
           </div>
           <div className="intro-margin">
-            <span>Software · Systems · People</span>
+            <span className="personal-signals">
+              <a href="#work">
+                <Icon name="code" /> Engineer
+              </a>
+              <a href="#photography">
+                <Icon name="camera" /> Photographer
+              </a>
+              <a href="/flappybird/">
+                <Icon name="gamepad" /> Gamer
+              </a>
+            </span>
             <a
               href="https://www.linkedin.com/in/thanapatpirmphol/"
               target="_blank"
               rel="noreferrer"
             >
-              Find me on LinkedIn <Arrow />
+              Find me on LinkedIn <Icon name="external" />
             </a>
-          </div>
-        </section>
-        <section className="water-feature" aria-labelledby="water-title">
-          <div className="water-heading">
-            <div>
-              <p className="section-label">MY CURRENT CHAPTER</p>
-              <h2 id="water-title">
-                Water is a shared resource.
-                <br />
-                Its records should be clear.
-              </h2>
-            </div>
-            <a
-              href="https://www.waterledger.com"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Water Ledger <Arrow />
-            </a>
-          </div>
-          <div className="water-window">
-            <Suspense fallback={<div className="water-fallback">Water</div>}>
-              <WaterScene paused={paused} />
-            </Suspense>
-            <div className="water-caption">
-              <span>Move across the water to make a ripple.</span>
-              <button onClick={() => setPaused(!paused)} aria-pressed={paused}>
-                {paused ? "Resume motion" : "Pause motion"}
-              </button>
-            </div>
-          </div>
-          <div className="water-footnote">
-            <p>
-              A surface of connected ripples — a small illustration of a shared
-              resource. My work is the infrastructure underneath: water
-              accounting, market activity, and records people can trust.
-            </p>
-            <span>
-              Water Ledger Global
-              <br />
-              Chief Technology Officer · 2024–present
-            </span>
           </div>
         </section>
         <section
@@ -184,24 +152,81 @@ export default function App() {
             <p>Different domains. The same curiosity.</p>
           </div>
           <div className="work-list">
-            {projects.map((project, i) => (
-              <article key={project.name} className="work-item">
-                <span className="work-index">0{i + 1}</span>
-                <div className="work-name">
-                  <h3>
-                    <a href={project.url} target="_blank" rel="noreferrer">
-                      {project.name} <Arrow />
-                    </a>
-                  </h3>
-                  <p>{project.role}</p>
-                </div>
-                <div className="work-description">
-                  <p>{project.description}</p>
-                  <span>{project.signal}</span>
-                </div>
-              </article>
-            ))}
+            {[projects[3], projects[2], projects[0], projects[1]].map(
+              (project, i) => (
+                <article key={project.name} className="work-item">
+                  <span className="work-index">0{i + 1}</span>
+                  <div className="work-name">
+                    <h3>
+                      <a href={project.url} target="_blank" rel="noreferrer">
+                        {project.name} <Icon name="external" />
+                      </a>
+                    </h3>
+                    <p>{project.role}</p>
+                  </div>
+                  <div className="work-description">
+                    <p>{project.description}</p>
+                    <span>{project.signal}</span>
+                  </div>
+                </article>
+              ),
+            )}
           </div>
+        </section>
+        <section
+          className="photography-section"
+          id="photography"
+          aria-labelledby="photography-title"
+        >
+          <div className="photography-heading">
+            <div>
+              <p className="section-label">
+                <Icon name="camera" /> AWAY FROM THE KEYBOARD
+              </p>
+              <h2 id="photography-title">A different way of looking.</h2>
+            </div>
+            <a
+              className="inline-link"
+              href="https://pixabay.com/users/oadtz-3657813/"
+              target="_blank"
+              rel="noreferrer"
+            >
+              My photography on Pixabay <Icon name="external" />
+            </a>
+          </div>
+          <p className="photography-intro">
+            I enjoy taking photographs as much as building software. A little
+            patience, a different angle, and something ordinary becomes worth a
+            second look.
+          </p>
+          <PhotoCollection photos={photographs} paused={paused} />
+          <div className="creative-footer">
+            <p>
+              <Icon name="camera" /> Photographs by me, shared as oadtz.
+            </p>
+            <button
+              className="motion-control"
+              onClick={() => setPaused(!paused)}
+              aria-pressed={paused}
+            >
+              <Icon name={paused ? "play" : "pause"} />
+              {paused ? "Enable motion" : "Pause motion"}
+            </button>
+          </div>
+          <a className="arcade-note" href="/flappybird/">
+            <span className="arcade-symbol">
+              <Icon name="gamepad" />
+            </span>
+            <span>
+              <strong>There’s a gamer here, too.</strong>
+              <span>
+                A small browser game for the “one more round” part of me.
+              </span>
+            </span>
+            <span className="arcade-action">
+              Play the arcade <Icon name="external" />
+            </span>
+          </a>
         </section>
         <section
           className="about-section"
@@ -254,7 +279,7 @@ export default function App() {
             </div>
             <details className="profile-facts">
               <summary>
-                Profile & technical toolkit <span aria-hidden="true">+</span>
+                Profile & technical toolkit <Icon name="plus" />
               </summary>
               <dl>
                 {quickFacts.map(([label, value]) => (
@@ -281,7 +306,7 @@ export default function App() {
               target="_blank"
               rel="noreferrer"
             >
-              Full experience on LinkedIn <Arrow />
+              Full experience on LinkedIn <Icon name="external" />
             </a>
           </div>
           <div className="timeline">
@@ -309,22 +334,22 @@ export default function App() {
             <div className="contact-copy">
               <p>
                 I’m always interested in the problems behind the technology.
-                Especially water, blockchain, AI, and the work of leading
-                engineering teams.
+                Software architecture, blockchain, AI, and engineering
+                leadership — or simply a good photograph or a good game.
               </p>
               <a
                 href="https://www.linkedin.com/in/thanapatpirmphol/"
                 target="_blank"
                 rel="noreferrer"
               >
-                Say hello on LinkedIn <Arrow />
+                Say hello on LinkedIn <Icon name="external" />
               </a>
               <a
                 href="https://www.github.com/oadtz"
                 target="_blank"
                 rel="noreferrer"
               >
-                Look around my GitHub <Arrow />
+                Look around my GitHub <Icon name="external" />
               </a>
             </div>
           </div>
@@ -336,7 +361,7 @@ export default function App() {
         </a>
         <span>© {new Date().getFullYear()} Thanapat Pirmphol</span>
         <a href="/flappybird/">
-          And sometimes, I make games. <Arrow />
+          <Icon name="gamepad" /> One more round? <Icon name="external" />
         </a>
       </footer>
     </>

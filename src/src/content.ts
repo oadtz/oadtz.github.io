@@ -73,7 +73,7 @@ export const quickFacts = [
   ],
   [
     "Focus areas",
-    "Water markets, blockchain infrastructure, regulated systems, technical leadership, and agentic AI delivery",
+    "Software architecture, blockchain infrastructure, AI delivery, technical leadership, regulated systems, and water markets",
   ],
   [
     "Experience base",
@@ -99,10 +99,4 @@ export const skills = [
   "Stakeholder translation",
 ];
 
-export const systemNodes = [
-  "Water",
-  "Markets",
-  "Ledger",
-  "AI Delivery",
-  "Leadership",
-];
+export const systemNodes = ["Leadership", "AI Delivery", "Ledger", "Markets", "Water"];
