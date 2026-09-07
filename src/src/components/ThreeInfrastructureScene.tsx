@@ -1,338 +1,322 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 import {
-  AdditiveBlending,
+  ACESFilmicToneMapping,
   AmbientLight,
-  BoxGeometry,
   BufferAttribute,
   BufferGeometry,
-  CatmullRomCurve3,
   Color,
-  GridHelper,
+  DirectionalLight,
   Group,
   IcosahedronGeometry,
   Line,
   LineBasicMaterial,
-  Material,
   Mesh,
-  MeshBasicMaterial,
   MeshPhysicalMaterial,
   PerspectiveCamera,
-  PointLight,
+  PMREMGenerator,
   Points,
   PointsMaterial,
   Scene,
-  SRGBColorSpace,
+  SphereGeometry,
   TorusGeometry,
+  TorusKnotGeometry,
   Vector3,
   WebGLRenderer,
-} from 'three';
+} from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 
-type SceneProps = {
-  activeNode: string;
+type SceneProps = { activeNode: string; paused: boolean };
+const palette: Record<string, number> = {
+  Water: 0xd2f65a,
+  Markets: 0xa9cbff,
+  Ledger: 0xc4a4ff,
+  "AI Delivery": 0xffb583,
+  Leadership: 0xefefe0,
 };
 
-const nodePositions = [
-  new Vector3(-2.7, -0.45, 0),
-  new Vector3(-1.2, 0.9, -0.35),
-  new Vector3(0.45, 0.25, 0.25),
-  new Vector3(1.65, 1.0, -0.25),
-  new Vector3(2.55, -0.35, 0.15),
-];
-
-export default function ThreeInfrastructureScene({ activeNode }: SceneProps) {
-  const mountRef = useRef<HTMLDivElement | null>(null);
-  const activeNodeRef = useRef(activeNode);
-
+export default function ThreeInfrastructureScene({
+  activeNode,
+  paused,
+}: SceneProps) {
+  const mountRef = useRef<HTMLDivElement>(null);
+  const activeRef = useRef(activeNode);
+  const pausedRef = useRef(paused);
+  const renderRef = useRef<(() => void) | null>(null);
   useEffect(() => {
-    activeNodeRef.current = activeNode;
+    activeRef.current = activeNode;
+    renderRef.current?.();
   }, [activeNode]);
+  useEffect(() => {
+    pausedRef.current = paused;
+    renderRef.current?.();
+  }, [paused]);
 
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isCompact = window.innerWidth < 700;
-    const scene = new Scene();
-    const camera = new PerspectiveCamera(45, mount.clientWidth / mount.clientHeight, 0.1, 100);
-    camera.position.set(0, 0.2, 7.2);
-
-    const renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.8));
+    let renderer: WebGLRenderer;
+    try {
+      renderer = new WebGLRenderer({
+        antialias: true,
+        alpha: true,
+        powerPreference: "low-power",
+      });
+    } catch {
+      mount.classList.add("scene-unavailable");
+      mount.textContent = "∞";
+      return () => {
+        mount.textContent = "";
+        mount.classList.remove("scene-unavailable");
+      };
+    }
+    renderer.setPixelRatio(
+      Math.min(window.devicePixelRatio, window.innerWidth < 700 ? 1.3 : 1.75),
+    );
     renderer.setSize(mount.clientWidth, mount.clientHeight);
-    renderer.outputColorSpace = SRGBColorSpace;
+    renderer.toneMapping = ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.15;
     mount.appendChild(renderer.domElement);
-
-    const root = new Group();
-    root.position.x = isCompact ? 0.85 : 1.75;
-    root.position.y = isCompact ? -0.35 : 0.18;
-    root.scale.setScalar(isCompact ? 0.74 : 0.9);
-    scene.add(root);
-
-    const ambient = new AmbientLight(0x8fb9ff, 0.82);
-    scene.add(ambient);
-
-    const key = new PointLight(0x59d8ff, 4.4, 18);
-    key.position.set(-3, 4, 5);
-    scene.add(key);
-
-    const green = new PointLight(0x70f0b0, 2.4, 15);
-    green.position.set(4, -2, 3);
-    scene.add(green);
-
-    const solar = new PointLight(0xffc66d, 1.6, 16);
-    solar.position.set(-4.5, 2.8, 4.5);
-    scene.add(solar);
-
-    const lineMaterial = new LineBasicMaterial({
-      color: 0x73e8ff,
-      transparent: true,
-      opacity: 0.14,
-      blending: AdditiveBlending,
-      depthWrite: false,
+    const scene = new Scene();
+    const camera = new PerspectiveCamera(
+      37,
+      mount.clientWidth / mount.clientHeight,
+      0.1,
+      40,
+    );
+    camera.position.set(0, 0, 9.3);
+    const environment = new RoomEnvironment();
+    const pmrem = new PMREMGenerator(renderer);
+    const environmentMap = pmrem.fromScene(environment, 0.04);
+    scene.environment = environmentMap.texture;
+    environment.dispose();
+    pmrem.dispose();
+    scene.add(new AmbientLight(0xe8f6c9, 1.5));
+    const key = new DirectionalLight(0xf6ffea, 4);
+    key.position.set(2, 4, 5);
+    const rim = new DirectionalLight(0xd2f65a, 3);
+    rim.position.set(-4, 1, -2);
+    scene.add(key, rim);
+    const sculpture = new Group();
+    sculpture.rotation.set(0.2, -0.25, -0.35);
+    scene.add(sculpture);
+    const chrome = new MeshPhysicalMaterial({
+      color: 0xc9d1bc,
+      metalness: 1,
+      roughness: 0.22,
+      clearcoat: 1,
+      clearcoatRoughness: 0.14,
+      envMapIntensity: 1.8,
     });
-    const glowMaterial = new MeshBasicMaterial({
-      color: 0x73f2c3,
+    const knot = new Mesh(
+      new TorusKnotGeometry(1.25, 0.39, 180, 24, 2, 3),
+      chrome,
+    );
+    sculpture.add(knot);
+    const wireMaterial = new MeshPhysicalMaterial({
+      color: 0xd2f65a,
+      metalness: 0.4,
+      roughness: 0.3,
+      emissive: 0xd2f65a,
+      emissiveIntensity: 0.17,
+      wireframe: true,
       transparent: true,
       opacity: 0.2,
-      blending: AdditiveBlending,
-      depthWrite: false,
     });
-    const haloMaterial = new MeshBasicMaterial({
-      color: 0x63d9ff,
-      transparent: true,
-      opacity: 0.07,
-      blending: AdditiveBlending,
-      depthWrite: false,
-    });
-    const blockMaterial = new MeshPhysicalMaterial({
-      color: 0x80ddff,
-      roughness: 0.22,
-      metalness: 0.05,
-      transmission: 0.72,
-      transparent: true,
-      opacity: isCompact ? 0.08 : 0.12,
-      thickness: 0.8,
-    });
-
-    const starCount = isCompact ? 72 : 168;
-    const starGeometry = new BufferGeometry();
-    const starPositions = new Float32Array(starCount * 3);
-    const starColors = new Float32Array(starCount * 3);
-    const starPalette = [new Color(0xf4fbf9), new Color(0xa7fff0), new Color(0x63d9ff), new Color(0xffd166)];
-    const seeded = (seed: number) => {
-      const value = Math.sin(seed * 12.9898) * 43758.5453;
-      return value - Math.floor(value);
-    };
-
-    for (let index = 0; index < starCount; index += 1) {
-      const x = (seeded(index + 1) - 0.5) * 8.6 + 0.8;
-      const y = (seeded(index + 61) - 0.5) * 5.2 + 0.35;
-      const z = -3.8 - seeded(index + 131) * 2.4;
-      const color = starPalette[index % starPalette.length].clone().multiplyScalar(0.55 + seeded(index + 211) * 0.45);
-      starPositions[index * 3] = x;
-      starPositions[index * 3 + 1] = y;
-      starPositions[index * 3 + 2] = z;
-      starColors[index * 3] = color.r;
-      starColors[index * 3 + 1] = color.g;
-      starColors[index * 3 + 2] = color.b;
-    }
-
-    starGeometry.setAttribute('position', new BufferAttribute(starPositions, 3));
-    starGeometry.setAttribute('color', new BufferAttribute(starColors, 3));
-    const starMaterial = new PointsMaterial({
-      size: isCompact ? 0.018 : 0.024,
-      transparent: true,
-      opacity: 0.48,
-      vertexColors: true,
-      blending: AdditiveBlending,
-      depthWrite: false,
-    });
-    const starField = new Points(starGeometry, starMaterial);
-    root.add(starField);
-
-    const orbitGroup = new Group();
-    root.add(orbitGroup);
-
-    const orbitMaterials = [0x63d9ff, 0x76f0b7, 0xffd166].map(
-      (color, index) =>
-        new MeshBasicMaterial({
-          color,
-          transparent: true,
-          opacity: index === 2 ? 0.08 : 0.1,
-          blending: AdditiveBlending,
-          depthWrite: false,
-        }),
+    const shell = new Mesh(
+      new TorusKnotGeometry(1.25, 0.43, 100, 12, 2, 3),
+      wireMaterial,
     );
-    const orbitScales = [1, 0.82, 1.16];
-    orbitMaterials.forEach((material, index) => {
-      const orbit = new Mesh(new TorusGeometry(2.55 * orbitScales[index], 0.004, 8, 180), material);
-      orbit.rotation.set(Math.PI / (2.6 + index * 0.28), 0.18 + index * 0.42, -0.34 + index * 0.32);
-      orbit.position.set(0.08, 0.08 - index * 0.04, -0.06);
-      orbitGroup.add(orbit);
-    });
-
-    const nodeVisuals = nodePositions.map((position, index) => {
-      const group = new Group();
-      group.position.copy(position);
-
-      const coreMaterial = glowMaterial.clone();
-      coreMaterial.color.set(index % 2 === 0 ? 0x76f0b7 : 0x63d9ff);
-      const core = new Mesh(new IcosahedronGeometry(0.17, 2), coreMaterial);
-      const halo = new Mesh(new IcosahedronGeometry(0.36, 2), haloMaterial.clone());
-      const ring = new Mesh(
-        new TorusGeometry(0.34, 0.005, 12, 72),
-        new MeshBasicMaterial({
-          color: index === 1 || index === 4 ? 0xffd166 : 0x6fdcff,
-          transparent: true,
-          opacity: 0.2,
-          blending: AdditiveBlending,
-          depthWrite: false,
-        }),
-      );
-      ring.rotation.x = Math.PI / 2.4;
-      group.add(halo, core, ring);
-
-      if (!isCompact && (index === 2 || index === 3)) {
-        const block = new Mesh(new BoxGeometry(0.42, 0.42, 0.42), blockMaterial.clone());
-        block.rotation.set(0.55, 0.76, 0.2);
-        group.add(block);
-      }
-
-      root.add(group);
-      return { group, core, halo, ring };
-    });
-
-    for (let index = 0; index < nodePositions.length - 1; index += 1) {
-      const curve = new CatmullRomCurve3([
-        nodePositions[index],
-        nodePositions[index].clone().lerp(nodePositions[index + 1], 0.5).add(new Vector3(0, 0.35, 0.12)),
-        nodePositions[index + 1],
-      ]);
-      const line = new Line(new BufferGeometry().setFromPoints(curve.getPoints(70)), lineMaterial);
-      root.add(line);
-    }
-
-    const particleCount = isCompact ? 46 : 96;
-    const particleGeometry = new BufferGeometry();
-    const particlePositions = new Float32Array(particleCount * 3);
-    const particleProgress = Array.from({ length: particleCount }, (_, index) => (index / particleCount) % 1);
-    const particleRoutes = Array.from({ length: particleCount }, (_, index) => index % (nodePositions.length - 1));
-
-    particleGeometry.setAttribute('position', new BufferAttribute(particlePositions, 3));
-    const particleMaterial = new PointsMaterial({
-      color: 0xa7fff0,
-      size: isCompact ? 0.018 : 0.024,
+    sculpture.add(shell);
+    const orbitGroup = new Group();
+    scene.add(orbitGroup);
+    const orbitMaterial = new LineBasicMaterial({
+      color: 0xd2f65a,
       transparent: true,
-      opacity: isCompact ? 0.32 : 0.42,
-      blending: AdditiveBlending,
-      depthWrite: false,
+      opacity: 0.3,
     });
-    const particles = new Points(particleGeometry, particleMaterial);
-    root.add(particles);
-
-    const grid = new GridHelper(9, 18, 0x224a57, 0x15313a);
-    grid.position.y = -1.72;
-    grid.rotation.x = 0.22;
-    (grid.material as Material).transparent = true;
-    (grid.material as Material).opacity = 0.055;
-    root.add(grid);
-
-    const pointer = { x: 0, y: 0 };
-    const handlePointerMove = (event: PointerEvent) => {
-      const rect = mount.getBoundingClientRect();
-      pointer.x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
-      pointer.y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
-    };
-
-    const handleResize = () => {
-      if (!mount.clientWidth || !mount.clientHeight) return;
-      camera.aspect = mount.clientWidth / mount.clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(mount.clientWidth, mount.clientHeight);
-    };
-
-    mount.addEventListener('pointermove', handlePointerMove);
-    window.addEventListener('resize', handleResize);
-
-    let sceneIsVisible = true;
-    const visibilityObserver = new IntersectionObserver(([entry]) => {
-      sceneIsVisible = entry.isIntersecting;
+    for (let i = 0; i < 3; i++) {
+      const vertices = Array.from(
+        { length: 161 },
+        (_, n) =>
+          new Vector3(
+            Math.cos((n / 160) * Math.PI * 2) * (2.2 + i * 0.15),
+            Math.sin((n / 160) * Math.PI * 2) * (2.2 + i * 0.15),
+            0,
+          ),
+      );
+      const orbit = new Line(
+        new BufferGeometry().setFromPoints(vertices),
+        orbitMaterial,
+      );
+      orbit.rotation.set(0.75 + i * 0.35, 0.35 + i * 0.65, -0.3);
+      orbitGroup.add(orbit);
+    }
+    const satelliteMaterial = new MeshPhysicalMaterial({
+      color: 0xd2f65a,
+      roughness: 0.28,
+      metalness: 0.55,
+      emissive: 0xd2f65a,
+      emissiveIntensity: 0.1,
     });
-    visibilityObserver.observe(mount);
-
-    let frame = 0;
-    let raf = 0;
-    const animate = () => {
-      if (!sceneIsVisible) {
-        raf = window.requestAnimationFrame(animate);
+    const satellite = new Mesh(
+      new IcosahedronGeometry(0.22, 2),
+      satelliteMaterial,
+    );
+    scene.add(satellite);
+    const smaller = new Mesh(new SphereGeometry(0.09, 16, 12), chrome);
+    scene.add(smaller);
+    const hoop = new Mesh(
+      new TorusGeometry(2.76, 0.006, 6, 100),
+      satelliteMaterial,
+    );
+    hoop.rotation.set(1.2, 0.6, -0.6);
+    scene.add(hoop);
+    const positions = new Float32Array(90 * 3);
+    for (let i = 0; i < positions.length; i++)
+      positions[i] = Math.sin(i * 93.7 + 12.3) * 3.8;
+    const dustGeometry = new BufferGeometry();
+    dustGeometry.setAttribute("position", new BufferAttribute(positions, 3));
+    const dust = new Points(
+      dustGeometry,
+      new PointsMaterial({
+        color: 0xb6c694,
+        size: 0.016,
+        transparent: true,
+        opacity: 0.4,
+      }),
+    );
+    scene.add(dust);
+    let targetX = 0,
+      targetY = 0,
+      elapsed = 0,
+      lastTime = 0,
+      frame = 0;
+    let visible = true,
+      lost = false,
+      disposed = false;
+    const accent = new Color();
+    const draw = () => {
+      if (disposed || lost) return;
+      accent.set(palette[activeRef.current] ?? palette.Water);
+      satelliteMaterial.color.copy(accent);
+      satelliteMaterial.emissive.copy(accent);
+      wireMaterial.color.copy(accent);
+      wireMaterial.emissive.copy(accent);
+      orbitMaterial.color.copy(accent);
+      const angle = elapsed * 0.22;
+      satellite.position.set(
+        Math.cos(angle + 0.3) * 2.35,
+        Math.sin(angle + 0.3) * 1.3,
+        Math.sin(angle) * 1.3,
+      );
+      smaller.position.set(
+        Math.cos(angle + 3.8) * 2.6,
+        Math.sin(angle + 3.8) * 1.8,
+        -0.4,
+      );
+      renderer.render(scene, camera);
+    };
+    const animate = (time: number) => {
+      frame = 0;
+      if (
+        disposed ||
+        lost ||
+        !visible ||
+        document.hidden ||
+        pausedRef.current
+      ) {
+        lastTime = 0;
         return;
       }
-
-      frame += reduceMotion ? 0.0012 : 0.0065;
-      const activeIndex = Math.max(0, ['Water', 'Markets', 'Ledger', 'AI Delivery', 'Leadership'].indexOf(activeNodeRef.current));
-
-      starField.rotation.y += reduceMotion ? 0.00002 : 0.0001;
-      starField.rotation.z = Math.sin(frame * 0.16) * 0.012;
-      starMaterial.opacity = (reduceMotion ? 0.38 : 0.44) + Math.sin(frame * 0.5) * 0.035;
-
-      orbitGroup.rotation.y += reduceMotion ? 0.00008 : 0.00035;
-      orbitGroup.rotation.z = Math.sin(frame * 0.28) * 0.028;
-
-      for (let index = 0; index < particleCount; index += 1) {
-        particleProgress[index] = (particleProgress[index] + (reduceMotion ? 0.00014 : 0.0009)) % 1;
-        const routeIndex = particleRoutes[index];
-        const start = nodePositions[routeIndex];
-        const end = nodePositions[routeIndex + 1];
-        const t = particleProgress[index];
-        const wave = Math.sin((t + index * 0.071) * Math.PI) * 0.24;
-        const point = start.clone().lerp(end, t);
-        particlePositions[index * 3] = point.x;
-        particlePositions[index * 3 + 1] = point.y + wave;
-        particlePositions[index * 3 + 2] = point.z + Math.cos(frame + index) * 0.12;
-      }
-      particleGeometry.attributes.position.needsUpdate = true;
-
-      nodeVisuals.forEach(({ group, core, halo, ring }, index) => {
-        const isActive = index === activeIndex;
-        const scale = isActive ? 1.08 + Math.sin(frame * 1.1) * 0.018 : 0.92 + Math.sin(frame * 0.72 + index) * 0.01;
-        group.scale.setScalar(scale);
-        group.rotation.y += reduceMotion ? 0.0004 : 0.0017;
-        group.rotation.z = Math.sin(frame * 0.42 + index) * 0.025;
-        ring.rotation.y += reduceMotion ? 0.0005 : 0.0024;
-        (core.material as MeshBasicMaterial).opacity = isActive ? 0.3 : 0.18;
-        (halo.material as MeshBasicMaterial).opacity = isActive ? 0.12 : 0.06;
-        (ring.material as MeshBasicMaterial).opacity = isActive ? 0.3 : 0.18;
-      });
-
-      root.rotation.y += ((pointer.x * 0.045) - root.rotation.y) * 0.022;
-      root.rotation.x += ((-pointer.y * 0.024) - root.rotation.x) * 0.022;
-      root.position.y = (isCompact ? -0.35 : 0.18) + Math.sin(frame * 0.32) * 0.04;
-      renderer.render(scene, camera);
-      raf = window.requestAnimationFrame(animate);
+      const delta = lastTime ? Math.min((time - lastTime) / 1000, 0.05) : 0;
+      lastTime = time;
+      elapsed += delta;
+      knot.rotation.y = elapsed * 0.14;
+      knot.rotation.z = Math.sin(elapsed * 0.2) * 0.09;
+      shell.rotation.copy(knot.rotation);
+      sculpture.rotation.y +=
+        (targetX * 0.28 - 0.25 - sculpture.rotation.y) * 0.025;
+      sculpture.rotation.x +=
+        (targetY * 0.2 + 0.2 - sculpture.rotation.x) * 0.025;
+      sculpture.position.y = Math.sin(elapsed * 0.65) * 0.08;
+      orbitGroup.rotation.y = elapsed * 0.035;
+      draw();
+      frame = requestAnimationFrame(animate);
     };
-
-    animate();
-
+    const wake = () => {
+      draw();
+      if (!frame && visible && !document.hidden && !pausedRef.current && !lost)
+        frame = requestAnimationFrame(animate);
+    };
+    renderRef.current = wake;
+    const pointerMove = (event: PointerEvent) => {
+      if (pausedRef.current || event.pointerType === "touch") return;
+      const bounds = mount.getBoundingClientRect();
+      targetX = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
+      targetY = ((event.clientY - bounds.top) / bounds.height) * 2 - 1;
+    };
+    const pointerLeave = () => {
+      targetX = 0;
+      targetY = 0;
+    };
+    const resize = new ResizeObserver(() => {
+      if (!mount.clientWidth || !mount.clientHeight) return;
+      camera.aspect = mount.clientWidth / mount.clientHeight;
+      camera.position.z = camera.aspect < 1 ? 10.5 : 9.3;
+      camera.updateProjectionMatrix();
+      renderer.setSize(mount.clientWidth, mount.clientHeight);
+      wake();
+    });
+    resize.observe(mount);
+    const visibility = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) wake();
+    });
+    visibility.observe(mount);
+    const contextLost = (event: Event) => {
+      event.preventDefault();
+      lost = true;
+      cancelAnimationFrame(frame);
+      frame = 0;
+    };
+    const contextRestored = () => {
+      lost = false;
+      wake();
+    };
+    renderer.domElement.addEventListener("webglcontextlost", contextLost);
+    renderer.domElement.addEventListener(
+      "webglcontextrestored",
+      contextRestored,
+    );
+    mount.addEventListener("pointermove", pointerMove);
+    mount.addEventListener("pointerleave", pointerLeave);
+    document.addEventListener("visibilitychange", wake);
+    wake();
     return () => {
-      window.cancelAnimationFrame(raf);
-      mount.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('resize', handleResize);
-      visibilityObserver.disconnect();
-      root.traverse((object) => {
-        const renderable = object as Mesh | Points | Line;
+      disposed = true;
+      renderRef.current = null;
+      cancelAnimationFrame(frame);
+      resize.disconnect();
+      visibility.disconnect();
+      mount.removeEventListener("pointermove", pointerMove);
+      mount.removeEventListener("pointerleave", pointerLeave);
+      document.removeEventListener("visibilitychange", wake);
+      renderer.domElement.removeEventListener("webglcontextlost", contextLost);
+      renderer.domElement.removeEventListener(
+        "webglcontextrestored",
+        contextRestored,
+      );
+      scene.traverse((object) => {
+        const renderable = object as Mesh;
         renderable.geometry?.dispose();
-        const material = renderable.material;
-        if (Array.isArray(material)) {
-          material.forEach((item) => item.dispose());
-        } else {
-          material?.dispose();
-        }
+        if (Array.isArray(renderable.material))
+          renderable.material.forEach((material) => material.dispose());
+        else renderable.material?.dispose();
       });
+      environmentMap.dispose();
       renderer.dispose();
-      mount.removeChild(renderer.domElement);
+      renderer.domElement.remove();
     };
   }, []);
-
   return <div className="three-scene" ref={mountRef} aria-hidden="true" />;
 }
