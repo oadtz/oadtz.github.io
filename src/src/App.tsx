@@ -7,7 +7,7 @@ import {
   systemNodes,
 } from "./content";
 import Icon from "./components/Icon";
-import AmbientBackdrop from "./components/AmbientBackdrop";
+import SpaceBackdrop from "./components/SpaceBackdrop";
 import PhotoCollection from "./components/PhotoCollection";
 import { photographs } from "./photographs";
 const focusNotes: Record<string, string> = {
@@ -50,7 +50,7 @@ export default function App() {
   }, [menuOpen]);
   return (
     <>
-      <AmbientBackdrop paused={reducedMotion} />
+      <SpaceBackdrop paused={reducedMotion} />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
