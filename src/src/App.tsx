@@ -154,7 +154,7 @@ export default function App() {
             <p>Different domains. The same curiosity.</p>
           </div>
           <div className="work-list">
-            {[projects[4], projects[3], projects[2], projects[0], projects[1]].map(
+            {[projects[3], projects[2], projects[0], projects[1], projects[4]].map(
               (project, i) => (
                 <article key={project.name} className="work-item">
                   <span className="work-index">0{i + 1}</span>
