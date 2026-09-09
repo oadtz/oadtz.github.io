@@ -37,7 +37,7 @@ export default function SpaceBackdrop({ paused }: { paused: boolean }) {
       targetY = 0;
     let scroll = window.scrollY;
     let disposed = false;
-    let starColor = "67, 93, 151";
+    let starColor = "142, 92, 58";
 
     const draw = () => {
       context.clearRect(0, 0, width, height);
@@ -156,7 +156,13 @@ export default function SpaceBackdrop({ paused }: { paused: boolean }) {
 
   return (
     <div className="space-backdrop" aria-hidden="true">
-      <div className="space-nebula" />
+      <div className="solar-system">
+        <div className="solar-orbit solar-orbit-outer" />
+        <div className="solar-orbit solar-orbit-inner">
+          <span className="orbiting-planet" />
+        </div>
+        <div className="solar-disc" />
+      </div>
       <canvas ref={canvasRef} className="space-stars" />
     </div>
   );

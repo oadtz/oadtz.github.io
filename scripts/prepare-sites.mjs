@@ -10,7 +10,6 @@ await mkdir(output, { recursive: true });
 for (const file of [
   "index.html",
   "profile.jpg",
-  "nebula.png",
   "favicon.svg",
   "favicon.png",
   "robots.txt",
