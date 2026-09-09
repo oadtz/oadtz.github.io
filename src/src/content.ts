@@ -46,6 +46,14 @@ export const projects = [
     description:
       "More than two decades delivering enterprise software, BI systems, integrations, architecture, and engineering leadership across complex organizations.",
   },
+  {
+    name: "Swaddee (สวดดี)",
+    role: "App Development",
+    signal: "Guided chanting, everyday practice, and thoughtful AI",
+    url: "https://swaddee.app/",
+    description:
+      "A Thai Buddhist chanting app that brings guided audio, synchronized reading, and translations together. AI recommendations help people find chants for their day and build a practice at their own pace.",
+  },
 ];
 
 export const experience = [
