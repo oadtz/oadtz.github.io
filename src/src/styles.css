@@ -20,6 +20,38 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  position: relative;
+  isolation: isolate;
+}
+.ambient-backdrop {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  mask-image: linear-gradient(
+    90deg,
+    #000,
+    #0007 12%,
+    #0001 27%,
+    transparent 39%,
+    transparent 61%,
+    #0002 78%,
+    #000 100%
+  );
+}
+@media (max-width: 700px) {
+  .ambient-backdrop {
+    opacity: 0.7;
+    mask-image: linear-gradient(
+      90deg,
+      #0008,
+      transparent 30%,
+      transparent 72%,
+      #000
+    );
+  }
 }
 h1,
 h2,
@@ -783,13 +815,6 @@ html[data-motion="off"] * {
   width: 16px;
   height: 16px;
 }
-.motion-control {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.75rem;
-  min-height: 44px;
-}
 .arcade-note {
   display: flex;
   align-items: center;
@@ -883,9 +908,6 @@ details[open] summary > .icon {
   }
   .creative-footer p {
     max-width: 200px;
-  }
-  .motion-control {
-    white-space: nowrap;
   }
   .arcade-note {
     gap: 14px;

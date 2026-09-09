@@ -7,6 +7,7 @@ import {
   systemNodes,
 } from "./content";
 import Icon from "./components/Icon";
+import AmbientBackdrop from "./components/AmbientBackdrop";
 import PhotoCollection from "./components/PhotoCollection";
 import { photographs } from "./photographs";
 const focusNotes: Record<string, string> = {
@@ -22,20 +23,20 @@ const focusNotes: Record<string, string> = {
     "Hands-on architecture, product decisions, and teams that can turn an uncertain problem into a working platform.",
 };
 export default function App() {
-  const [paused, setPaused] = useState(
+  const [reducedMotion, setReducedMotion] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
   const [activeFocus, setActiveFocus] = useState("Leadership");
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
-    const change = () => setPaused(media.matches);
+    const change = () => setReducedMotion(media.matches);
     media.addEventListener("change", change);
     return () => media.removeEventListener("change", change);
   }, []);
   useEffect(() => {
-    document.documentElement.dataset.motion = paused ? "off" : "on";
-  }, [paused]);
+    document.documentElement.dataset.motion = reducedMotion ? "off" : "on";
+  }, [reducedMotion]);
   useEffect(() => {
     if (!menuOpen) return;
     const close = (event: KeyboardEvent) => {
@@ -49,6 +50,7 @@ export default function App() {
   }, [menuOpen]);
   return (
     <>
+      <AmbientBackdrop paused={reducedMotion} />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
@@ -199,19 +201,11 @@ export default function App() {
             patience, a different angle, and something ordinary becomes worth a
             second look.
           </p>
-          <PhotoCollection photos={photographs} paused={paused} />
+          <PhotoCollection photos={photographs} paused={reducedMotion} />
           <div className="creative-footer">
             <p>
               <Icon name="camera" /> Photographs by me, shared as oadtz.
             </p>
-            <button
-              className="motion-control"
-              onClick={() => setPaused(!paused)}
-              aria-pressed={paused}
-            >
-              <Icon name={paused ? "play" : "pause"} />
-              {paused ? "Enable motion" : "Pause motion"}
-            </button>
           </div>
           <a className="arcade-note" href="/flappybird/">
             <span className="arcade-symbol">
