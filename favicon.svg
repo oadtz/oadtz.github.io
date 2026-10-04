@@ -12,23 +12,32 @@
   <rect width="256" height="256" rx="56" fill="url(#bg)"/>
   <rect x="6" y="6" width="244" height="244" rx="50" fill="none" stroke="url(#ring)" stroke-width="6" opacity="0.9"/>
   <!-- ears -->
-  <ellipse cx="50" cy="150" rx="12" ry="18" fill="#eeb590"/>
-  <ellipse cx="206" cy="150" rx="12" ry="18" fill="#eeb590"/>
+  <ellipse cx="50" cy="158" rx="12" ry="18" fill="#eeb590"/>
+  <ellipse cx="206" cy="158" rx="12" ry="18" fill="#eeb590"/>
   <!-- face -->
-  <path d="M52 132C52 92 86 70 128 70s76 22 76 62c0 46-34 86-76 86s-76-40-76-86Z" fill="#f6c7a4"/>
-  <!-- hair: swept quiff with a wavy fringe -->
-  <path d="M46 130C36 70 78 30 132 30c50 0 88 34 78 100-6-20-14-30-24-34-8 8-18 10-28 6-8 8-20 10-30 4-10 8-22 8-32 2-8 8-18 8-26 4-12 4-20 12-24 18Z" fill="#1c1d27"/>
-  <path d="M84 52C110 28 164 26 190 54c-30-12-70-12-106-2Z" fill="#34364a"/>
+  <path d="M52 140C52 100 86 84 128 84s76 16 76 56c0 46-34 84-76 84s-76-38-76-84Z" fill="#f6c7a4"/>
+  <!-- hair: short sides, with locks swept up and to one side -->
+  <path d="M46 150C40 118 48 96 62 88H196c12 10 20 32 14 62-4-16-10-26-18-32H64c-8 6-14 16-18 32Z" fill="#1c1d27"/>
+  <path d="M46 112C40 78 52 48 86 30C80 54 86 84 82 112Z" fill="#1c1d27" stroke="#0e0e15" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M76 112C70 72 82 42 116 24C110 48 116 78 112 112Z" fill="#1c1d27" stroke="#0e0e15" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M106 112C100 68 112 38 146 20C140 44 146 74 142 112Z" fill="#1c1d27" stroke="#0e0e15" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M136 112C130 72 142 42 176 24C170 48 176 78 172 112Z" fill="#1c1d27" stroke="#0e0e15" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M166 112C160 78 172 48 206 30C200 54 206 84 202 112Z" fill="#1c1d27" stroke="#0e0e15" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M56 104C52 78 60 54 80 38" fill="none" stroke="#7a4a2c" stroke-width="7" stroke-linecap="round"/>
+  <path d="M116 104C112 68 120 44 140 28" fill="none" stroke="#7a4a2c" stroke-width="7" stroke-linecap="round"/>
+  <path d="M176 104C172 78 180 54 200 38" fill="none" stroke="#7a4a2c" stroke-width="7" stroke-linecap="round"/>
+  <!-- brows -->
+  <path d="M68 122 104 128M188 122 152 128" fill="none" stroke="#1c1d27" stroke-width="10" stroke-linecap="round"/>
   <!-- glasses -->
-  <g fill="#ffffff" fill-opacity="0.14" stroke="#15151d" stroke-width="9">
-    <rect x="62" y="124" width="58" height="48" rx="16"/>
-    <rect x="136" y="124" width="58" height="48" rx="16"/>
+  <g fill="#ffffff" stroke="#15151d" stroke-width="9">
+    <rect x="62" y="138" width="58" height="48" rx="16"/>
+    <rect x="136" y="138" width="58" height="48" rx="16"/>
   </g>
-  <path d="M120 144q8-7 16 0" fill="none" stroke="#15151d" stroke-width="8" stroke-linecap="round"/>
-  <!-- eyes and smile -->
-  <circle cx="91" cy="149" r="11" fill="#4a2a1a"/>
-  <circle cx="165" cy="149" r="11" fill="#4a2a1a"/>
-  <circle cx="95" cy="145" r="4" fill="#fff"/>
-  <circle cx="169" cy="145" r="4" fill="#fff"/>
-  <path d="M106 190q22 16 44 0" fill="none" stroke="#b5625a" stroke-width="8" stroke-linecap="round"/>
+  <path d="M120 158q8-7 16 0" fill="none" stroke="#15151d" stroke-width="8" stroke-linecap="round"/>
+  <!-- eyes and one-sided smile -->
+  <ellipse cx="91" cy="164" rx="11" ry="15" fill="#5a3320"/>
+  <ellipse cx="165" cy="164" rx="11" ry="15" fill="#5a3320"/>
+  <circle cx="95" cy="157" r="4" fill="#fff"/>
+  <circle cx="169" cy="157" r="4" fill="#fff"/>
+  <path d="M110 204q22 10 40-8" fill="none" stroke="#b5625a" stroke-width="8" stroke-linecap="round"/>
 </svg>
