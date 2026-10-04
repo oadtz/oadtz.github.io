@@ -36,7 +36,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement) {
       // The lenses are fairly opaque in the export; thin them so the eyes read clearly.
       const materials = (object as THREE.Mesh).material;
       for (const material of Array.isArray(materials) ? materials : materials ? [materials] : [])
-        if (material.name.includes("GlassesLowLens")) material.opacity = 0.3;
+        if (/Glasses.*Lens/.test(material.name)) material.opacity = 0.3;
     });
     // Relax the arms out of the T-pose.
     const bone = (name: Parameters<VRM["humanoid"]["getNormalizedBoneNode"]>[0]) => loaded.humanoid.getNormalizedBoneNode(name);

@@ -19,26 +19,28 @@
     <path d="M100 204l28 44 28-44-10-12h-36Z" fill="#fff"/>
     <path d="M120 210h16l6 46h-28Z" fill="#5a4fa0"/>
     <!-- hair behind the head -->
-    <path d="M42 150C30 78 70 30 128 30s98 48 86 120c-2 16-8 28-14 36l-8-40H64l-8 40c-6-8-12-20-14-36Z" fill="#1b1512"/>
+    <path d="M44 138C34 76 72 34 128 34s94 42 84 104l-12 18-6-30H62l-6 30Z" fill="#1b1512"/>
     <!-- ears, neck and face -->
     <ellipse cx="54" cy="146" rx="10" ry="16" fill="#edd3c2"/>
     <ellipse cx="202" cy="146" rx="10" ry="16" fill="#edd3c2"/>
     <path d="M108 190h40v22l-20 12-20-12Z" fill="#e9cdbb"/>
     <path d="M56 120c0 50 30 86 72 86s72-36 72-86c0-30-30-50-72-50s-72 20-72 50Z" fill="#f6e3d6"/>
-    <!-- fringe: straight bangs with pointed strands, longer at the sides -->
-    <path d="M46 150C36 84 72 40 128 40s92 44 82 110l-10-34-8 24-10-36-12 30-10-34-14 32-10-34-14 34-10-34-12 32-10-32-10 28-8-28Z" fill="#1b1512"/>
-    <path d="M78 62c22-14 62-16 92-2-30-4-62-4-92 2Z" fill="#5a4636"/>
+    <!-- short messy fringe with tufts on top; brows show below it -->
+    <path d="M44 140C36 80 72 40 128 40s92 40 84 100l-14-22-6-20-12 14-8-22-14 20-10-24-14 22-12-22-12 20-10-18-8 22-8 16Z" fill="#1b1512"/>
+    <path d="M112 44c2-12 10-20 22-22-6 8-6 14-2 22ZM134 42c8-10 18-14 30-12-10 4-14 10-14 16ZM58 96l-20 6 16 10ZM198 96l20 8-16 8Z" fill="#1b1512"/>
+    <path d="M82 60c20-12 56-14 88-2-30-2-60-2-88 2Z" fill="#5a4636"/>
+    <path d="M72 116q22-10 44-2M184 116q-22-10-44-2" fill="none" stroke="#3a2a20" stroke-width="5" stroke-linecap="round"/>
     <!-- eyes -->
-    <ellipse cx="96" cy="142" rx="10" ry="13" fill="#6b452e"/>
-    <ellipse cx="160" cy="142" rx="10" ry="13" fill="#6b452e"/>
+    <ellipse cx="96" cy="144" rx="10" ry="13" fill="#6b452e"/>
+    <ellipse cx="160" cy="144" rx="10" ry="13" fill="#6b452e"/>
     <circle cx="99" cy="137" r="3.5" fill="#fff"/>
     <circle cx="163" cy="137" r="3.5" fill="#fff"/>
     <!-- glasses -->
-    <g fill="#ffffff" fill-opacity="0.12" stroke="#0e0d10" stroke-width="10">
-      <rect x="66" y="118" width="56" height="46" rx="20"/>
-      <rect x="134" y="118" width="56" height="46" rx="20"/>
+    <g fill="#ffffff" fill-opacity="0.12" stroke="#6b3d1e" stroke-width="7">
+      <rect x="64" y="122" width="58" height="42" rx="18"/>
+      <rect x="134" y="122" width="58" height="42" rx="18"/>
     </g>
-    <path d="M122 138q6-5 12 0" fill="none" stroke="#0e0d10" stroke-width="8" stroke-linecap="round"/>
+    <path d="M122 138q6-5 12 0" fill="none" stroke="#6b3d1e" stroke-width="6" stroke-linecap="round"/>
     <!-- mouth -->
     <path d="M116 186q12 6 24 0" fill="none" stroke="#b9716a" stroke-width="5" stroke-linecap="round"/>
   </g>
