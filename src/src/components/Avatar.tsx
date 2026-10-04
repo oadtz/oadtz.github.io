@@ -32,19 +32,19 @@ export default function Avatar({
   const [line, setLine] = useState(0);
   const [happy, setHappy] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const happyRef = useRef(false);
-  const pose = useRef({ x: 0, y: 0, bob: 0, blink: false });
+  const pose = useRef({ x: 0, y: 0 });
+  const moodRef = useRef({ happy: false, curious: false, still: paused });
   const sceneRef = useRef<ReturnType<typeof createAvatar3D> | null>(null);
   const paint = () => {
-    const { x, y, bob, blink } = pose.current;
-    sceneRef.current?.render(x, y, bob, { happy: happyRef.current, blink });
+    const { x, y } = pose.current;
+    sceneRef.current?.render(x, y, moodRef.current);
   };
 
   useEffect(() => {
-    happyRef.current = happy;
+    moodRef.current = { happy, curious: hint !== null, still: paused };
     // Reduced motion has no animation loop, so repaint the expression here.
     if (paused) paint();
-  }, [happy, paused]);
+  }, [happy, hint, paused]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -79,7 +79,7 @@ export default function Avatar({
     if (!stage) return;
     stage.style.setProperty("--x", "0");
     stage.style.setProperty("--y", "0");
-    pose.current = { x: 0, y: 0, bob: 0, blink: false };
+    pose.current = { x: 0, y: 0 };
     paint();
     if (paused) return;
     let x = 0,
@@ -105,8 +105,7 @@ export default function Avatar({
       y += (targetY - y) * easing;
       stage.style.setProperty("--x", x.toFixed(4));
       stage.style.setProperty("--y", y.toFixed(4));
-      const t = now / 1000;
-      pose.current = { x, y, bob: Math.sin(t * 1.4) * 0.015, blink: t % 4.6 < 0.13 };
+      pose.current = { x, y };
       paint();
       frame = requestAnimationFrame(tick);
     };

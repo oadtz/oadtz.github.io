@@ -14,7 +14,10 @@ from PIL import Image
 
 MAX_TEXTURE = 1024
 # Expressions the site uses; every other preset and its morph data is removed.
-KEEP_EXPRESSIONS = {"neutral", "happy", "relaxed", "surprised", "blink"}
+KEEP_EXPRESSIONS = {"neutral", "happy", "blink"}
+# Extra morph targets driven directly by name: a smile that leaves the eyes
+# open, and an open mouth.
+KEEP_MORPHS = {"Fcl_MTH_Fun", "Fcl_BRW_Fun", "Fcl_MTH_A"}
 
 source, target = sys.argv[1], sys.argv[2]
 with open(source, "rb") as f:
@@ -53,6 +56,9 @@ for expression in presets.values():
         mesh = gltf["nodes"][bind["node"]]["mesh"]
         kept.setdefault(mesh, set()).add(bind["index"])
 for mesh_index, mesh in enumerate(gltf["meshes"]):
+    for index, name in enumerate(mesh.get("extras", {}).get("targetNames", [])):
+        if name in KEEP_MORPHS:
+            kept.setdefault(mesh_index, set()).add(index)
     order = sorted(kept.get(mesh_index, ()))
     for primitive in mesh["primitives"]:
         if "targets" in primitive:
