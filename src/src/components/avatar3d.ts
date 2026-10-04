@@ -147,22 +147,22 @@ export function createAvatar3D(canvas: HTMLCanvasElement) {
 
   // Eyes: glossy sclera, iris, pupil and catch-light, with a lash line on top.
   const eyes = [-1, 1].map((side) => {
-    const eye = place(new THREE.Group(), side * 0.36, -0.03, -0.045, 0.5);
-    blob(eye, white, [0.172, 0.19, 0.1], [0, 0, 0]);
+    const eye = place(new THREE.Group(), side * 0.36, -0.03, -0.04, 0.5);
+    blob(eye, white, [0.155, 0.215, 0.09], [0, 0, 0]);
     const look = new THREE.Group();
     eye.add(look);
-    blob(look, iris, [0.132, 0.132, 0.036], [0, -0.015, 0.072]);
-    blob(look, dark, [0.064, 0.064, 0.02], [0, -0.015, 0.096]);
+    blob(look, iris, [0.118, 0.158, 0.034], [0, -0.02, 0.066]);
+    blob(look, dark, [0.062, 0.088, 0.02], [0, -0.02, 0.088]);
     const light = clay("#ffffff", { emissive: new THREE.Color("#ffffff"), emissiveIntensity: 0.9 });
-    blob(look, light, [0.03, 0.03, 0.01], [0.045, 0.05, 0.108]);
-    blob(look, light, [0.013, 0.013, 0.006], [-0.04, -0.045, 0.106]);
-    // Upper lid: the top cap of a slightly larger shell, in skin colour.
-    const lid = mesh(new THREE.SphereGeometry(1, 32, 12, 0, Math.PI * 2, 0, 0.88), skin, eye);
-    lid.scale.set(0.18, 0.198, 0.108);
-    const lash = mesh(new THREE.TorusGeometry(0.139, 0.015, 8, 28, Math.PI), dark, eye);
-    lash.rotation.x = Math.PI / 2;
-    lash.scale.y = 0.6;
-    lash.position.y = 0.125;
+    blob(look, light, [0.03, 0.036, 0.01], [0.04, 0.055, 0.1]);
+    // Bold lash line hugging the top of the eye.
+    const lashCurve = new THREE.CatmullRomCurve3(
+      Array.from({ length: 9 }, (_, i) => {
+        const angle = (0.1 + (i / 8) * 0.8) * Math.PI;
+        return new THREE.Vector3(Math.cos(angle) * 0.165, Math.sin(angle) * 0.222, 0.03 + Math.sin(angle) * 0.03);
+      }),
+    );
+    mesh(new THREE.TubeGeometry(lashCurve, 24, 0.024, 8), dark, eye).castShadow = false;
     // Closed, smiling eye shown instead when happy.
     const smile = place(new THREE.Group(), side * 0.36, -0.11, 0.02, 0.5);
     mesh(new THREE.TorusGeometry(0.13, 0.028, 8, 24, Math.PI), dark, smile);
@@ -170,23 +170,21 @@ export function createAvatar3D(canvas: HTMLCanvasElement) {
   });
   const brows = [-1, 1].map((side) => {
     const brow = place(new THREE.Group(), side * 0.37, 0.34, 0.012);
-    // A soft arch: the top slice of a ring, hung so its crest sits on the brow line.
-    const arc = Math.PI * 0.4;
-    const bar = mesh(new THREE.TorusGeometry(0.24, 0.036, 10, 24, arc), hair, brow);
-    bar.rotation.z = Math.PI / 2 - arc / 2 - side * 0.06;
-    bar.position.y = -0.24;
+    // A thick bar, slanting down toward the nose for a confident look.
+    const bar = mesh(new THREE.CapsuleGeometry(0.046, 0.2, 6, 14), hair, brow);
+    bar.rotation.z = Math.PI / 2 + side * 0.2;
     return brow;
   });
   // Cheeks
-  const blushMaterial = new THREE.MeshBasicMaterial({ color: "#ff8f8f", transparent: true, opacity: 0.36, depthWrite: false });
+  const blushMaterial = new THREE.MeshBasicMaterial({ color: "#ff8f8f", transparent: true, opacity: 0.2, depthWrite: false });
   for (const side of [-1, 1]) {
     const cheek = place(new THREE.Mesh(new THREE.CircleGeometry(0.14, 32), blushMaterial), side * 0.55, -0.24, 0.012);
     cheek.scale.y = 0.7;
   }
   // Mouth: a closed smile, swapped for an open laugh when happy.
   const smileMouth = place(new THREE.Group(), 0, -0.28, 0.004);
-  const smileArc = mesh(new THREE.TorusGeometry(0.2, 0.026, 8, 28, Math.PI * 0.6), lip, smileMouth);
-  smileArc.rotation.z = -Math.PI * 0.8;
+  const smileArc = mesh(new THREE.TorusGeometry(0.19, 0.026, 8, 28, Math.PI * 0.5), lip, smileMouth);
+  smileArc.rotation.z = -Math.PI * 0.75 + 0.3;
   const laugh = place(new THREE.Group(), 0, -0.38, 0.012);
   const flatMaterial = (color: string) => new THREE.MeshStandardMaterial({ color, roughness: 0.5 });
   laugh.add(new THREE.Mesh(new THREE.CircleGeometry(0.19, 32, Math.PI, Math.PI), flatMaterial("#6e2129")));
@@ -197,21 +195,85 @@ export function createAvatar3D(canvas: HTMLCanvasElement) {
   tongue.position.set(0, -0.125, 0.003);
   laugh.add(teeth, tongue);
 
-  // ---- Hair: a cap plus sculpted clay volumes, short sides and a swept top.
+  // ---- Hair: a cap for the short sides, plus big sculpted locks swept up and to one side.
   const cap = mesh(new THREE.SphereGeometry(1.05, 48, 32, 0, Math.PI * 2, 0, 1.4), hair, head);
   cap.scale.x = 0.97;
   cap.rotation.x = -0.62;
-  blob(head, hair, [0.97, 0.5, 0.94], [0.02, 0.62, -0.08], [0, 0, 0.1]);
+  blob(head, hair, [0.9, 0.42, 0.9], [0, 0.6, -0.1]);
   blob(head, hair, [0.74, 0.55, 0.5], [0, 0.38, -0.6]);
-  // Fringe: clumps drop below the top mass so the hairline is uneven.
-  for (const [x, y, w, tilt] of [[-0.44, 0.6, 0.25, 0.5], [-0.17, 0.62, 0.27, 0.3], [0.12, 0.63, 0.26, 0.12], [0.4, 0.6, 0.24, -0.2]]) {
-    const clump = place(blob(head, hair, [w, 0.16, 0.12], [0, 0, 0]), x, y, 0.075);
-    clump.rotateZ(tilt);
-  }
-  // Sideburns tie the hair to the ears.
   for (const side of [-1, 1]) blob(head, hair, [0.04, 0.15, 0.1], [side * 0.935, 0.3, 0.14]);
-  // A soft quiff rising to one side, merged into the top mass.
-  blob(head, hair, [0.66, 0.3, 0.42], [0.1, 0.92, 0.4], [0.5, 0, 0.2]);
+  const hairSide = hair.clone();
+  hairSide.side = THREE.DoubleSide;
+  const streak = clay("#5a3a26", { roughness: 0.6, side: THREE.DoubleSide });
+  const HEAD_CENTER = new THREE.Vector3(0, 0.2, 0);
+  /** A flattened, tapering lock of hair following a curve; wide side faces out from the head. */
+  const lock = (points: [number, number, number][], width: number, thickness: number, material: THREE.Material, lift = 0) => {
+    const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
+    const rows = 18;
+    const ring = 10;
+    const positions: number[] = [];
+    const indices: number[] = [];
+    for (let i = 0; i <= rows; i++) {
+      const t = i / rows;
+      const centre = curve.getPoint(t);
+      const tangent = curve.getTangent(t);
+      const normal = centre.clone().sub(HEAD_CENTER).normalize();
+      normal.addScaledVector(tangent, -normal.dot(tangent)).normalize();
+      const across = new THREE.Vector3().crossVectors(tangent, normal);
+      // Full at the root, swelling slightly, then tapering to a soft tip.
+      const profile = (1 - t ** 2.4) * (0.72 + 0.28 * Math.sin(Math.PI * t));
+      centre.addScaledVector(normal, lift);
+      for (let j = 0; j < ring; j++) {
+        const angle = (j / ring) * Math.PI * 2;
+        const v = centre
+          .clone()
+          .addScaledVector(across, Math.cos(angle) * width * profile)
+          .addScaledVector(normal, Math.sin(angle) * thickness * profile);
+        positions.push(v.x, v.y, v.z);
+      }
+    }
+    for (let i = 0; i < rows; i++)
+      for (let j = 0; j < ring; j++) {
+        const a = i * ring + j;
+        const b = i * ring + ((j + 1) % ring);
+        indices.push(a, a + ring, b, b, a + ring, b + ring);
+      }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    return mesh(geometry, material, head);
+  };
+  // Front row: tall locks rising from the hairline and curling to one side.
+  [-0.6, -0.38, -0.14, 0.1, 0.34, 0.56].forEach((x, i) => {
+    const y = 0.6;
+    const z = surfaceZ(x, y) + 0.02;
+    const h = 1 - Math.abs(x) * 0.45;
+    const path: [number, number, number][] = [
+      [x, y, z],
+      [x + 0.02, y + 0.3 * h, z + 0.14],
+      [x + 0.17, y + 0.56 * h, z + 0.08],
+      [x + 0.4, y + 0.64 * h, z - 0.1],
+    ];
+    lock(path, 0.2, 0.11, hairSide);
+    // A lighter streak along alternate locks, like sculpted highlights.
+    if (i % 2 === 0) lock(path, 0.06, 0.05, streak, 0.085);
+  });
+  // Back row: shorter locks over the crown, leaning the same way.
+  for (const x of [-0.5, -0.2, 0.1, 0.4]) {
+    const h = 1 - Math.abs(x) * 0.4;
+    lock(
+      [
+        [x, 0.92, 0.2],
+        [x + 0.06, 0.92 + 0.26 * h, 0.12],
+        [x + 0.22, 0.92 + 0.38 * h, -0.08],
+        [x + 0.42, 0.92 + 0.34 * h, -0.3],
+      ],
+      0.22,
+      0.12,
+      hairSide,
+    );
+  }
 
   // ---- Glasses: rounded frames with glossy lenses, bridge and arms.
   const lensMaterial = new THREE.MeshPhysicalMaterial({ color: "#dff4ff", transparent: true, opacity: 0.14, roughness: 0.05, clearcoat: 1, depthWrite: false });
@@ -265,7 +327,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement) {
     brows.forEach((brow, i) => (brow.position.y = onFace((i ? 1 : -1) * 0.37, 0.34 + happiness * 0.06, 0.012).position.y));
     smileMouth.visible = !mood.happy;
     laugh.visible = mood.happy;
-    blushMaterial.opacity = 0.36 + happiness * 0.25;
+    blushMaterial.opacity = 0.2 + happiness * 0.35;
     renderer.render(scene, camera);
   }
   function resize() {
