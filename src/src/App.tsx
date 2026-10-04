@@ -1,4 +1,4 @@
-import { useEffect, useState, type PointerEvent } from "react";
+import { useEffect, useState, type CSSProperties, type PointerEvent } from "react";
 import {
   experience,
   projects,
@@ -151,8 +151,27 @@ export default function App() {
             </p>
             <h1 id="hero-title">
               <span className="hero-hi">Hi, I’m</span>
-              Thanapat
-              <span className="hero-surname">Pirmphol.</span>
+              <span className="hero-name">
+                <span className="hero-name-stage">
+                  <span className="hero-name-text">
+                    Thanapat
+                    <span className="hero-surname">Pirmphol.</span>
+                  </span>
+                  {/* Icons orbit the name, passing behind and in front of it. */}
+                  <span className="name-orbit" aria-hidden="true">
+                    <span className="orbit-ring" />
+                    {signals.map((signal, index) => (
+                      <span
+                        className="orbit-chip"
+                        key={signal.icon}
+                        style={{ "--i": index } as CSSProperties}
+                      >
+                        <Icon name={signal.icon} />
+                      </span>
+                    ))}
+                  </span>
+                </span>
+              </span>
             </h1>
             <p className="hero-lead">
               An engineer who likes getting to the bottom of complicated things.

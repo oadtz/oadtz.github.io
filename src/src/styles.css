@@ -298,6 +298,11 @@ nav a:hover {
 }
 
 /* Shared */
+/* Clip sideways overflow at the viewport, not at the content column, so the
+   name orbit and the avatar can spill past the column edges. */
+main {
+  overflow-x: clip;
+}
 main > section {
   width: min(1180px, calc(100% - 32px));
   margin: 0 auto;
@@ -393,7 +398,6 @@ html[data-motion="off"] .reveal {
 /* Hero */
 .hero {
   position: relative;
-  overflow-x: clip;
   min-height: calc(100svh - 70px);
   display: grid;
   grid-template-columns: 1.05fr 1fr;
@@ -583,15 +587,31 @@ html[data-motion="off"] .reveal {
     rotate: 360deg;
   }
 }
-.avatar-orbit {
+/* Name orbit: the text and the ring share one 3D space, so icons on the far
+   side of the ring pass behind the letters. */
+.hero-name {
+  position: relative;
+  display: inline-block;
+  perspective: 1100px;
+}
+.hero-name-stage {
+  display: block;
+  transform-style: preserve-3d;
+}
+.hero-name-text {
+  display: block;
+  transform: translateZ(0);
+}
+.name-orbit {
+  --r: 2.55em;
   position: absolute;
   left: 50%;
-  top: 84%;
+  top: 54%;
   transform-style: preserve-3d;
-  transform: rotateZ(-9deg) rotateX(-14deg);
+  transform: rotateZ(-7deg) rotateX(-13deg);
+  pointer-events: none;
 }
-.avatar-ring {
-  --r: 225px;
+.orbit-ring {
   position: absolute;
   width: calc(var(--r) * 2);
   height: calc(var(--r) * 2);
@@ -604,11 +624,10 @@ html[data-motion="off"] .reveal {
   transform: rotateX(90deg);
 }
 .orbit-chip {
-  --r: 225px;
   position: absolute;
-  width: 54px;
-  height: 54px;
-  margin: -27px;
+  width: 48px;
+  height: 48px;
+  margin: -24px;
   display: grid;
   place-items: center;
   border-radius: 16px;
@@ -624,6 +643,10 @@ html[data-motion="off"] .reveal {
 .orbit-chip .icon {
   width: 24px;
   height: 24px;
+}
+.orbit-chip {
+  letter-spacing: normal;
+  line-height: 1;
 }
 .orbit-chip:nth-child(2) {
   color: var(--cyan);
@@ -651,17 +674,18 @@ html[data-motion="off"] .reveal {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+/* The canvas is wider than the stage, so shoulders and raised arms have room
+   instead of being cut at the stage edge. Only the bottom fades out. */
 .avatar-figure canvas {
   display: block;
-  width: 100%;
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 160%;
   height: 100%;
   filter: drop-shadow(0 20px 30px #0008);
-  /* Fade the bottom and the side edges, so a raised elbow never ends in a hard cut. */
-  mask-image:
-    linear-gradient(to bottom, #000 80%, transparent 98%),
-    linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
-  mask-composite: intersect;
-  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to bottom, #000 80%, transparent 98%);
+  pointer-events: none;
 }
 .avatar-figure:focus-visible {
   outline-offset: -10px;
@@ -1348,19 +1372,15 @@ footer a:last-child .icon {
   }
 }
 @media (max-width: 700px) {
-  .avatar-ring,
   .orbit-chip {
-    --r: 150px;
-  }
-  .orbit-chip {
-    width: 44px;
-    height: 44px;
-    margin: -22px;
-    border-radius: 13px;
+    width: 36px;
+    height: 36px;
+    margin: -18px;
+    border-radius: 11px;
   }
   .orbit-chip .icon {
-    width: 20px;
-    height: 20px;
+    width: 17px;
+    height: 17px;
   }
   .avatar-bubble {
     font-size: 0.8125rem;

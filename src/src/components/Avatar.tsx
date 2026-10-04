@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import Icon, { type IconName } from "./Icon";
 import type { createAvatar3D } from "./avatar3d";
 
 const lines = [
@@ -9,7 +8,6 @@ const lines = [
   "Off the clock, I’m behind a camera 📷",
   "…or playing one more round 🎮",
 ];
-const chips: IconName[] = ["code", "camera", "gamepad"];
 const sparks = [
   [12, 22, 120],
   [86, 18, 60],
@@ -64,7 +62,7 @@ export default function Avatar({
         resize.observe(canvas);
       })
       .catch(() => {
-        // No WebGL: the stage keeps its glow and orbit without the character.
+        // No WebGL: the stage keeps its glow without the character.
       });
     return () => {
       cancelled = true;
@@ -163,18 +161,6 @@ export default function Avatar({
       </p>
       <div className="avatar-scene">
         <div className="avatar-halo" />
-        <div className="avatar-orbit">
-          <div className="avatar-ring" />
-          {chips.map((chip, index) => (
-            <span
-              className="orbit-chip"
-              key={chip}
-              style={{ "--i": index } as CSSProperties}
-            >
-              <Icon name={chip} />
-            </span>
-          ))}
-        </div>
         <button
           className="avatar-figure"
           type="button"
