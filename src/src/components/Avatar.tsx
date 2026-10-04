@@ -19,7 +19,7 @@ const sparks = [
   [92, 46, -90],
 ];
 
-/** A clay-style 3D bust that turns its head toward the pointer. */
+/** The VRM avatar, framed as a bust, turning its head toward the pointer. */
 export default function Avatar({
   paused,
   hint,

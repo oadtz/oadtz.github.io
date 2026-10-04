@@ -15,6 +15,7 @@ for (const file of [
   "apple-touch-icon.png",
   "icon-512.png",
   "og.png",
+  "avatar.vrm",
   "site.webmanifest",
   "robots.txt",
   "sitemap.xml",
