@@ -1,0 +1,21 @@
+{
+  "name": "Thanapat Pirmphol",
+  "short_name": "oadtz",
+  "description": "CTO, software engineer, photographer.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#07070e",
+  "theme_color": "#07070e",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "256x256",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

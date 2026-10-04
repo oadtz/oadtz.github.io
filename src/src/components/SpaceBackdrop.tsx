@@ -156,13 +156,10 @@ export default function SpaceBackdrop({ paused }: { paused: boolean }) {
 
   return (
     <div className="space-backdrop" aria-hidden="true">
-      <div className="solar-system">
-        <div className="solar-orbit solar-orbit-outer" />
-        <div className="solar-orbit solar-orbit-inner">
-          <span className="orbiting-planet" />
-        </div>
-        <div className="solar-disc" />
-      </div>
+      <div className="aurora aurora-a" />
+      <div className="aurora aurora-b" />
+      <div className="aurora aurora-c" />
+      <div className="backdrop-grid" />
       <canvas ref={canvasRef} className="space-stars" />
     </div>
   );

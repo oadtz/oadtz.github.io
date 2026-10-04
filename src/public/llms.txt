@@ -1,35 +1,77 @@
 # Thanapat Pirmphol
 
-Thanapat Pirmphol is a CTO and software engineer with 20+ years of experience across enterprise architecture, blockchain, AI delivery, and engineering leadership. He also enjoys photography and gaming.
+> Thanapat Pirmphol (also known as oadtz) is a CTO and software engineer with 20+ years of experience across software architecture, blockchain, AI delivery and engineering leadership. He is Chief Technology Officer at Water Ledger Global, and a photographer and gamer away from the keyboard.
 
-## Canonical URL
+Canonical URL: https://www.oadtz.com/
+Last updated: 2026-10-04
 
-https://www.oadtz.com/
+## Key facts
 
-## Current Role
+- Name: Thanapat Pirmphol (online handle: oadtz)
+- Current role: Chief Technology Officer at Water Ledger Global (2024 to present)
+- Experience: 20+ years across enterprise software, aviation, insurance, data platforms, public-sector blockchain and water infrastructure
+- Education: Chulalongkorn University
+- Focus areas: software architecture, blockchain infrastructure, AI delivery, technical leadership, regulated systems, water markets
 
-Chief Technology Officer at Water Ledger Global.
+## Selected work
 
-## Core Topics
+- [Water Ledger](https://www.waterledger.com): Platforms that turn water rights, status and market activity into auditable digital infrastructure.
+- [TapIn](https://play.google.com/store/apps/details?id=com.waterledger.tapin): A mobile app for communities to report and monitor leaks, spills and water conditions on a live map.
+- [Civic Ledger](https://www.civicledger.com/home): Secure blockchain and full-stack systems for regulated public-sector use cases.
+- [Swaddee](https://swaddee.app/): A Thai Buddhist chanting app with guided audio, synchronized reading, translations and AI recommendations.
+- Enterprise platforms: two decades of enterprise software, BI systems, integrations and architecture across aviation, insurance, data and consulting.
 
-- Blockchain infrastructure
-- Water markets and water accounting
-- Regulated digital platforms
-- Technical leadership
-- Agentic AI and AI agents
-- Enterprise software architecture
-- Sustainable systems
+## Experience
 
-## Useful Links
+- 2024 to present: Chief Technology Officer, Water Ledger Global
+- 2022 to 2024: Senior Software / Blockchain Engineer, Civic Ledger
+- 2020 to 2022: Lead Software Engineer, 4-ti Co. Ltd.
+- 2020: Senior Manager, Business Transformation & IS, Aetna (a CVS Health company)
+- 2019 to 2020: IT Business Consultant, Adastra Thailand
+- 2002 to 2018: Engineering and application leadership at Unilode, ExxonMobil, Softscape and Progress Information
 
-- Main website: https://www.oadtz.com/
+## Skills
+
+Blockchain architecture, smart contracts, TypeScript, React, Node.js, Python, cloud platforms, DevOps, data systems, agentic AI, AI agents, LLM tool use, spec-driven AI workflows, team leadership, stakeholder translation.
+
+## Questions and answers
+
+### Who is Thanapat Pirmphol?
+
+Thanapat Pirmphol, also known online as oadtz, is a CTO and software engineer with more than 20 years of experience in enterprise systems, blockchain, AI delivery and engineering leadership. He is currently Chief Technology Officer at Water Ledger Global.
+
+### What does Thanapat Pirmphol work on?
+
+He works on water markets and water accounting platforms, blockchain infrastructure for regulated workflows, software architecture, and agentic AI engineering workflows built on clear specifications and human review.
+
+### Where does Thanapat Pirmphol work?
+
+He is Chief Technology Officer at Water Ledger Global (2024 to present). Before that he was a Senior Software and Blockchain Engineer at Civic Ledger (2022 to 2024) and Lead Software Engineer at 4-ti (2020 to 2022).
+
+### What has Thanapat Pirmphol built?
+
+Selected work includes Water Ledger (water markets and accounting), TapIn (community water condition reporting), public-sector blockchain systems at Civic Ledger, enterprise platforms across aviation, insurance and data, and Swaddee, a Thai Buddhist chanting app with AI recommendations.
+
+### What technologies does Thanapat Pirmphol use?
+
+Blockchain architecture and smart contracts, TypeScript, React, Node.js, Python, cloud platforms, DevOps, data systems, AI agents and LLM tool use.
+
+### How can I contact Thanapat Pirmphol?
+
+The best way is LinkedIn at linkedin.com/in/thanapatpirmphol. His code is on GitHub at github.com/oadtz and his photography is on Pixabay as oadtz.
+
+### What opportunities are relevant to Thanapat Pirmphol?
+
+CTO and technical leadership roles, blockchain infrastructure, water and sustainability technology, regulated market platforms, agentic AI delivery, and complex software systems that need trust and adoption.
+
+## Links
+
+- Website: https://www.oadtz.com/
 - LinkedIn: https://www.linkedin.com/in/thanapatpirmphol/
 - GitHub: https://www.github.com/oadtz
+- Photography (Pixabay, as oadtz): https://pixabay.com/users/oadtz-3657813/
 - Water Ledger: https://www.waterledger.com/
 
 ## Contact
 
-LinkedIn: https://www.linkedin.com/in/thanapatpirmphol/
-
-## Beyond engineering
-Thanapat also enjoys photography and gaming. His photography is shared on Pixabay as oadtz: https://pixabay.com/users/oadtz-3657813/
+LinkedIn is the best way to reach him: https://www.linkedin.com/in/thanapatpirmphol/

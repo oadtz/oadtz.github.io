@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type PointerEvent } from "react";
 import {
   experience,
   projects,
@@ -7,6 +7,7 @@ import {
   systemNodes,
 } from "./content";
 import Icon from "./components/Icon";
+import Avatar from "./components/Avatar";
 import SpaceBackdrop from "./components/SpaceBackdrop";
 import PhotoCollection from "./components/PhotoCollection";
 import { photographs } from "./photographs";
@@ -22,12 +23,46 @@ const focusNotes: Record<string, string> = {
   Leadership:
     "Hands-on architecture, product decisions, and teams that can turn an uncertain problem into a working platform.",
 };
+const signals = [
+  {
+    href: "#work",
+    icon: "code",
+    label: "Engineer",
+    hint: "Architecture, ledgers & AI agents. My day job 💻",
+  },
+  {
+    href: "#photography",
+    icon: "camera",
+    label: "Photographer",
+    hint: "Same world, different frame 📷",
+  },
+  {
+    href: "/flappybird/",
+    icon: "gamepad",
+    label: "Gamer",
+    hint: "Fancy a round of Flappy Bird? 🎮",
+  },
+] as const;
+const workSpans = [3, 3, 2, 2, 2];
+// Card spotlight: the glow follows the pointer inside the card.
+const spotlight = (event: PointerEvent<HTMLElement>) => {
+  const bounds = event.currentTarget.getBoundingClientRect();
+  event.currentTarget.style.setProperty(
+    "--px",
+    `${event.clientX - bounds.left}px`,
+  );
+  event.currentTarget.style.setProperty(
+    "--py",
+    `${event.clientY - bounds.top}px`,
+  );
+};
 export default function App() {
   const [reducedMotion, setReducedMotion] = useState(
     () => matchMedia("(prefers-reduced-motion: reduce)").matches,
   );
   const [activeFocus, setActiveFocus] = useState("Leadership");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hint, setHint] = useState<string | null>(null);
   useEffect(() => {
     const media = matchMedia("(prefers-reduced-motion: reduce)");
     const change = () => setReducedMotion(media.matches);
@@ -37,6 +72,29 @@ export default function App() {
   useEffect(() => {
     document.documentElement.dataset.motion = reducedMotion ? "off" : "on";
   }, [reducedMotion]);
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.classList.add("in");
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px" },
+    );
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
+    const glow = (event: globalThis.PointerEvent) => {
+      if (event.pointerType !== "mouse") return;
+      document.documentElement.style.setProperty("--mx", `${event.clientX}px`);
+      document.documentElement.style.setProperty("--my", `${event.clientY}px`);
+    };
+    window.addEventListener("pointermove", glow, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("pointermove", glow);
+    };
+  }, []);
   useEffect(() => {
     if (!menuOpen) return;
     const close = (event: KeyboardEvent) => {
@@ -51,14 +109,15 @@ export default function App() {
   return (
     <>
       <SpaceBackdrop paused={reducedMotion} />
+      <div className="cursor-glow" aria-hidden="true" />
+      <div className="scroll-progress" aria-hidden="true" />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
       <header className="site-header">
         <a href="#top" className="wordmark" aria-label="Thanapat Pirmphol home">
-          oadtz
+          oadtz<span>.</span>
         </a>
-        <p className="header-note">Engineer. Photographer. Player.</p>
         <button
           className="menu-button"
           aria-expanded={menuOpen}
@@ -85,160 +144,184 @@ export default function App() {
         </nav>
       </header>
       <main id="main">
-        <section className="introduction" id="top" aria-labelledby="hero-title">
-          <div className="name-block">
-            <p className="intro-note">Hi, I’m Thanapat.</p>
+        <section className="hero" id="top" aria-labelledby="hero-title">
+          <div className="hero-copy">
+            <p className="status-chip">
+              <span className="status-dot" /> CTO at Water Ledger Global
+            </p>
             <h1 id="hero-title">
+              <span className="hero-hi">Hi, I’m</span>
               Thanapat
-              <br />
-              <span>Pirmphol</span>
-              <span className="name-period">.</span>
+              <span className="hero-surname">Pirmphol.</span>
             </h1>
-          </div>
-          <figure className="portrait">
-            <img
-              src="/profile.jpg"
-              alt="Thanapat Pirmphol"
-              width="590"
-              height="590"
-              fetchPriority="high"
-            />
-            <figcaption>
-              <span>Thanapat Pirmphol</span>
-              <span>oadtz</span>
-            </figcaption>
-          </figure>
-          <div className="intro-copy">
-            <p className="role">CTO · Software engineer · Curious by nature</p>
-            <p>
-              I’m an engineer who likes getting to the bottom of complicated
-              things. Then building something people can actually use.
+            <p className="hero-lead">
+              An engineer who likes getting to the bottom of complicated things.
+              Then building something people can actually use.
             </p>
-            <p>
-              My work spans software architecture, blockchain, AI, and
-              engineering leadership. Away from the keyboard, I’m usually
-              looking through a camera — or playing a game.
+            <p className="hero-sub">
+              Software architecture, blockchain, AI, and engineering leadership.
+              Away from the keyboard, usually behind a camera — or playing a
+              game.
             </p>
-            <a href="#work" className="inline-link">
-              A few things I’ve worked on <Icon name="down" />
-            </a>
+            <div className="signal-row">
+              {signals.map((signal) => (
+                <a
+                  key={signal.label}
+                  href={signal.href}
+                  className="signal"
+                  onPointerEnter={() => setHint(signal.hint)}
+                  onPointerLeave={() => setHint(null)}
+                  onFocus={() => setHint(signal.hint)}
+                  onBlur={() => setHint(null)}
+                >
+                  <Icon name={signal.icon} /> {signal.label}
+                </a>
+              ))}
+            </div>
+            <div className="hero-actions">
+              <a href="#work" className="button button-primary">
+                See the work <Icon name="down" />
+              </a>
+              <a
+                href="https://www.linkedin.com/in/thanapatpirmphol/"
+                className="button"
+                target="_blank"
+                rel="noreferrer"
+              >
+                LinkedIn <Icon name="external" />
+              </a>
+            </div>
           </div>
-          <div className="intro-margin">
-            <span className="personal-signals">
-              <a href="#work">
-                <Icon name="code" /> Engineer
-              </a>
-              <a href="#photography">
-                <Icon name="camera" /> Photographer
-              </a>
-              <a href="/flappybird/">
-                <Icon name="gamepad" /> Gamer
-              </a>
-            </span>
-            <a
-              href="https://www.linkedin.com/in/thanapatpirmphol/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Find me on LinkedIn <Icon name="external" />
-            </a>
-          </div>
+          <Avatar paused={reducedMotion} hint={hint} />
+          <p className="scroll-cue" aria-hidden="true">
+            <span /> Scroll
+          </p>
         </section>
+
+        <div className="marquee" aria-label="Skills">
+          <div className="marquee-track">
+            {[0, 1].map((copy) => (
+              <ul key={copy} aria-hidden={copy === 1 || undefined}>
+                {skills.map((skill) => (
+                  <li key={skill}>{skill}</li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+
         <section
           className="work-section"
           id="work"
           aria-labelledby="work-title"
         >
-          <div className="section-title">
-            <h2 id="work-title">Some of the work.</h2>
-            <p>Different domains. The same curiosity.</p>
+          <div className="section-title reveal">
+            <p className="section-label">
+              <Icon name="code" /> SELECTED WORK
+            </p>
+            <h2 id="work-title">
+              Different domains.
+              <br />
+              <em>The same curiosity.</em>
+            </h2>
           </div>
-          <div className="work-list">
+          <div className="work-grid">
             {[projects[3], projects[2], projects[0], projects[1], projects[4]].map(
               (project, i) => (
-                <article key={project.name} className="work-item">
-                  <span className="work-index">0{i + 1}</span>
-                  <div className="work-name">
-                    <h3>
-                      <a href={project.url} target="_blank" rel="noreferrer">
-                        {project.name} <Icon name="external" />
-                      </a>
-                    </h3>
-                    <p>{project.role}</p>
-                  </div>
-                  <div className="work-description">
-                    <p>{project.description}</p>
-                    <span>{project.signal}</span>
-                  </div>
-                </article>
+                <a
+                  key={project.name}
+                  className="work-card reveal"
+                  href={project.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onPointerMove={spotlight}
+                  style={{ gridColumn: `span ${workSpans[i]}` }}
+                >
+                  <span className="work-top">
+                    <span className="work-index">0{i + 1}</span>
+                    <span className="work-role">{project.role}</span>
+                    <Icon name="external" />
+                  </span>
+                  <h3>{project.name}</h3>
+                  <p>{project.description}</p>
+                  <span className="work-signal">{project.signal}</span>
+                </a>
               ),
             )}
           </div>
         </section>
+
         <section
           className="photography-section"
           id="photography"
           aria-labelledby="photography-title"
         >
-          <div className="photography-heading">
+          <div className="photography-heading reveal">
             <div>
               <p className="section-label">
                 <Icon name="camera" /> AWAY FROM THE KEYBOARD
               </p>
-              <h2 id="photography-title">A different way of looking.</h2>
+              <h2 id="photography-title">
+                A different way
+                <br />
+                <em>of looking.</em>
+              </h2>
             </div>
-            <a
-              className="inline-link"
-              href="https://pixabay.com/users/oadtz-3657813/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              My photography on Pixabay <Icon name="external" />
-            </a>
+            <div className="photography-side">
+              <p>
+                I enjoy taking photographs as much as building software. A
+                little patience, a different angle, and something ordinary
+                becomes worth a second look.
+              </p>
+              <a
+                className="inline-link"
+                href="https://pixabay.com/users/oadtz-3657813/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                My photography on Pixabay <Icon name="external" />
+              </a>
+            </div>
           </div>
-          <p className="photography-intro">
-            I enjoy taking photographs as much as building software. A little
-            patience, a different angle, and something ordinary becomes worth a
-            second look.
-          </p>
           <PhotoCollection photos={photographs} paused={reducedMotion} />
-          <div className="creative-footer">
-            <p>
-              <Icon name="camera" /> Photographs by me, shared as oadtz.
-            </p>
-          </div>
-          <a className="arcade-note" href="/flappybird/">
+          <a
+            className="arcade-note reveal"
+            href="/flappybird/"
+            onPointerMove={spotlight}
+          >
             <span className="arcade-symbol">
               <Icon name="gamepad" />
             </span>
-            <span>
+            <span className="arcade-text">
               <strong>There’s a gamer here, too.</strong>
               <span>
                 A small browser game for the “one more round” part of me.
               </span>
             </span>
             <span className="arcade-action">
-              Play the arcade <Icon name="external" />
+              Press start <Icon name="external" />
             </span>
           </a>
         </section>
+
         <section
           className="about-section"
           id="about"
           aria-labelledby="about-title"
         >
-          <div className="about-heading">
+          <div className="about-heading reveal">
             <p className="section-label">A LITTLE CONTEXT</p>
             <h2 id="about-title">
               Still an engineer.
               <br />
-              Still curious.
+              <em>Still curious.</em>
             </h2>
             <p className="years">
-              20+ <span>years in software</span>
+              <strong>20+</strong>
+              <span>years in software</span>
             </p>
           </div>
-          <div className="about-body">
+          <div className="about-body reveal">
             <p className="large-copy">
               The code is only part of the system. People need to understand it,
               operate it, and trust what comes out of it.
@@ -267,7 +350,7 @@ export default function App() {
                   </button>
                 ))}
               </div>
-              <p className="focus-note" aria-live="polite">
+              <p className="focus-note" aria-live="polite" key={activeFocus}>
                 {focusNotes[activeFocus]}
               </p>
             </div>
@@ -283,17 +366,20 @@ export default function App() {
                   </div>
                 ))}
               </dl>
-              <p className="skills">{skills.join(" / ")}</p>
             </details>
           </div>
         </section>
+
         <section
           className="experience-section"
           id="experience"
           aria-labelledby="experience-title"
         >
-          <div className="section-title">
-            <h2 id="experience-title">The longer story.</h2>
+          <div className="section-title reveal">
+            <p className="section-label">TIMELINE</p>
+            <h2 id="experience-title">
+              The longer <em>story.</em>
+            </h2>
             <a
               className="inline-link"
               href="https://www.linkedin.com/in/thanapatpirmphol/"
@@ -303,35 +389,37 @@ export default function App() {
               Full experience on LinkedIn <Icon name="external" />
             </a>
           </div>
-          <div className="timeline">
+          <ol className="timeline">
             {experience.map(([period, role, company]) => (
-              <article className="timeline-row" key={period}>
+              <li className="timeline-row reveal" key={period}>
                 <span>{period}</span>
                 <h3>{company}</h3>
                 <p>{role}</p>
-              </article>
+              </li>
             ))}
-          </div>
+          </ol>
         </section>
+
         <section
           className="contact"
           id="contact"
           aria-labelledby="contact-title"
         >
-          <p className="section-label">CONTINUE THE CONVERSATION</p>
-          <div>
+          <div className="contact-card reveal" onPointerMove={spotlight}>
+            <p className="section-label">CONTINUE THE CONVERSATION</p>
             <h2 id="contact-title">
               What are you
               <br />
-              working on?
+              <em>working on?</em>
             </h2>
-            <div className="contact-copy">
-              <p>
-                I’m always interested in the problems behind the technology.
-                Software architecture, blockchain, AI, and engineering
-                leadership — or simply a good photograph or a good game.
-              </p>
+            <p>
+              I’m always interested in the problems behind the technology.
+              Software architecture, blockchain, AI, and engineering leadership —
+              or simply a good photograph or a good game.
+            </p>
+            <div className="hero-actions">
               <a
+                className="button button-primary"
                 href="https://www.linkedin.com/in/thanapatpirmphol/"
                 target="_blank"
                 rel="noreferrer"
@@ -339,11 +427,12 @@ export default function App() {
                 Say hello on LinkedIn <Icon name="external" />
               </a>
               <a
+                className="button"
                 href="https://www.github.com/oadtz"
                 target="_blank"
                 rel="noreferrer"
               >
-                Look around my GitHub <Icon name="external" />
+                GitHub <Icon name="external" />
               </a>
             </div>
           </div>
@@ -351,7 +440,7 @@ export default function App() {
       </main>
       <footer>
         <a className="wordmark" href="#top">
-          oadtz
+          oadtz<span>.</span>
         </a>
         <span>© {new Date().getFullYear()} Thanapat Pirmphol</span>
         <a href="/flappybird/">
