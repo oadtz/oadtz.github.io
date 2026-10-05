@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { createAvatar3D } from "./avatar3d";
 
-/** The VRM avatar standing full height. It is only built once scrolled near. */
+/** The VRM avatar standing full height. It is only built once scrolled into view. */
 export default function StandingAvatar({ paused }: { paused: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
@@ -47,7 +47,8 @@ export default function StandingAvatar({ paused }: { paused: boolean }) {
         }
         sync();
       },
-      { rootMargin: "400px" },
+      // Wait until he is properly on screen, so his entrance isn't missed.
+      { threshold: 0.35 },
     );
     observer.observe(canvas);
     const move = (event: PointerEvent) => {
