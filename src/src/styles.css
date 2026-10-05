@@ -446,8 +446,9 @@ html[data-motion="off"] .reveal {
   color: var(--muted);
   margin-bottom: 0.35em;
 }
+/* The surname wraps under the first name only when the line runs out of room. */
 .hero-surname {
-  display: block;
+  display: inline-block;
   background: linear-gradient(
     100deg,
     var(--cyan),
@@ -686,6 +687,109 @@ html[data-motion="off"] .reveal {
   filter: drop-shadow(0 20px 30px #0008);
   mask-image: linear-gradient(to bottom, #000 80%, transparent 98%);
   pointer-events: none;
+}
+/* Until the model arrives a holographic ring spins where his head will be and a
+   scan line sweeps the figure. When it lands, the scan rises once and the
+   model materialises behind it, bright and blurred, then settles. */
+.avatar-loader {
+  --ring: 40%;
+  --ring-top: 12%;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity 0.5s 0.9s;
+}
+.avatar-loader::before {
+  content: "";
+  position: absolute;
+  top: var(--ring-top);
+  left: calc(50% - var(--ring) / 2);
+  width: var(--ring);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(var(--cyan), transparent 28%, var(--violet) 50%, transparent 75%, var(--pink));
+  mask: radial-gradient(closest-side, transparent 88%, #000 90%, #000 97%, transparent);
+  filter: drop-shadow(0 0 10px #6ee7ffaa);
+  animation:
+    loader-spin 1.6s linear infinite,
+    loader-pulse 1.6s ease-in-out infinite alternate;
+}
+.avatar-loader::after {
+  content: "";
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), #fff, var(--pink), transparent);
+  box-shadow:
+    0 0 16px 3px #6ee7ff88,
+    0 0 40px 8px #8b7bff44;
+  animation: loader-scan 2.4s ease-in-out infinite alternate;
+}
+@keyframes loader-spin {
+  to {
+    rotate: 1turn;
+  }
+}
+@keyframes loader-pulse {
+  from {
+    opacity: 0.45;
+    scale: 0.94;
+  }
+}
+@keyframes loader-scan {
+  from {
+    top: 12%;
+  }
+  to {
+    top: 88%;
+  }
+}
+[data-status="loading"] canvas {
+  opacity: 0;
+}
+[data-status="ready"] canvas {
+  animation: materialize 1.4s var(--ease) both;
+}
+[data-status="ready"] .avatar-loader {
+  opacity: 0;
+}
+[data-status="ready"] .avatar-loader::before {
+  animation: loader-burst 0.7s var(--ease) both;
+}
+[data-status="ready"] .avatar-loader::after {
+  animation: loader-rise 1.4s var(--ease) both;
+}
+[data-status="failed"] .avatar-loader {
+  display: none;
+}
+@keyframes materialize {
+  from {
+    clip-path: inset(100% 0 0 0);
+    filter: brightness(2.4) saturate(0.2) blur(6px);
+  }
+  55% {
+    filter: brightness(1.5) saturate(0.7) blur(1px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+@keyframes loader-burst {
+  to {
+    opacity: 0;
+    scale: 1.8;
+  }
+}
+@keyframes loader-rise {
+  from {
+    top: 100%;
+  }
+  to {
+    top: 0%;
+    opacity: 0;
+  }
 }
 .avatar-figure:focus-visible {
   outline-offset: -10px;
@@ -1295,11 +1399,20 @@ html[data-motion="off"] .reveal {
   z-index: 1;
 }
 .contact-figure {
-  display: block;
+  position: relative;
   height: 340px;
   aspect-ratio: 1 / 2;
   margin: -8px 0 -12px;
   pointer-events: none;
+}
+.contact-figure canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.contact-figure .avatar-loader {
+  --ring: 34%;
+  --ring-top: 5%;
 }
 @media (min-width: 900px) {
   /* Two columns: the copy reads left-aligned, the figure floats on the right. */
@@ -1361,6 +1474,11 @@ footer a:last-child .icon {
     height: auto;
     width: min(440px, 92%);
   }
+  /* One column: the full name fits on one line, so the orbit widens around it. */
+  .name-orbit {
+    --r: 4.1em;
+    transform: rotateZ(-4deg) rotateX(-6deg);
+  }
   .scroll-cue {
     display: none;
   }
@@ -1376,6 +1494,10 @@ footer a:last-child .icon {
   }
 }
 @media (max-width: 700px) {
+  /* Scale the name down just enough to keep it on one line. */
+  .hero h1 {
+    font-size: min(3.4rem, calc((100vw - 32px) / 8.7));
+  }
   .orbit-chip {
     width: 36px;
     height: 36px;

@@ -15,7 +15,8 @@ const CLICK_GESTURES: Gesture[] = ["wave", "nod", "scratch"];
 const ease = (t: number) => t * t * (3 - 2 * t);
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 
-export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false) {
+/** `onReady` reports whether the model loaded, once, so the page can reveal it. */
+export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onReady?: (loaded: boolean) => void) {
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -67,7 +68,8 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false) {
     scene.add(loaded.scene);
     play("wave"); // say hello on arrival
     frame();
-  });
+    onReady?.(true);
+  }, undefined, () => onReady?.(false));
 
   // Scratch vectors for the arm solver.
   const shoulderAt = new THREE.Vector3();

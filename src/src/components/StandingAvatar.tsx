@@ -1,9 +1,10 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { createAvatar3D } from "./avatar3d";
 
 /** The VRM avatar standing full height. It is only built once scrolled near. */
 export default function StandingAvatar({ paused }: { paused: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -36,11 +37,12 @@ export default function StandingAvatar({ paused }: { paused: boolean }) {
           import("./avatar3d")
             .then(({ createAvatar3D }) => {
               if (cancelled) return;
-              scene = createAvatar3D(canvas, true);
+              scene = createAvatar3D(canvas, true, (loaded) => setStatus(loaded ? "ready" : "failed"));
               resize.observe(canvas);
             })
             .catch(() => {
               // No WebGL: the card simply has no figure.
+              setStatus("failed");
             });
         }
         sync();
@@ -68,5 +70,10 @@ export default function StandingAvatar({ paused }: { paused: boolean }) {
     };
   }, [paused]);
 
-  return <canvas className="contact-figure" ref={canvasRef} aria-hidden="true" />;
+  return (
+    <div className="contact-figure" data-status={status} aria-hidden="true">
+      <canvas ref={canvasRef} />
+      <span className="avatar-loader" />
+    </div>
+  );
 }

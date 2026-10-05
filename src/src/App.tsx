@@ -155,7 +155,7 @@ export default function App() {
               <span className="hero-name">
                 <span className="hero-name-stage">
                   <span className="hero-name-text">
-                    Thanapat
+                    Thanapat{" "}
                     <span className="hero-surname">Pirmphol.</span>
                   </span>
                   {/* Icons orbit the name, passing behind and in front of it. */}

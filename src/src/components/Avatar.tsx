@@ -21,6 +21,7 @@ export default function Avatar({
   const stageRef = useRef<HTMLDivElement>(null);
   const happyTimer = useRef(0);
   const [happy, setHappy] = useState(false);
+  const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pose = useRef({ x: 0, y: 0 });
   const moodRef = useRef({ happy: false, curious: false, still: paused });
@@ -48,13 +49,14 @@ export default function Avatar({
     import("./avatar3d")
       .then(({ createAvatar3D }) => {
         if (cancelled) return;
-        sceneRef.current = createAvatar3D(canvas);
+        sceneRef.current = createAvatar3D(canvas, false, (loaded) => setStatus(loaded ? "ready" : "failed"));
         sceneRef.current.resize();
         paint();
         resize.observe(canvas);
       })
       .catch(() => {
         // No WebGL: the stage keeps its glow without the character.
+        setStatus("failed");
       });
     return () => {
       cancelled = true;
@@ -145,6 +147,7 @@ export default function Avatar({
       className="avatar-stage"
       ref={stageRef}
       data-happy={happy || undefined}
+      data-status={status}
     >
       <div className="avatar-scene">
         <div className="avatar-halo" />
@@ -155,6 +158,7 @@ export default function Avatar({
           aria-label="Cartoon Thanapat. Click to say hi."
         >
           <canvas ref={canvasRef} aria-hidden="true" />
+          <span className="avatar-loader" aria-hidden="true" />
         </button>
         {sparks.map(([left, top, depth], index) => (
           <span
