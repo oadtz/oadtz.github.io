@@ -10,6 +10,7 @@ await mkdir(output, { recursive: true });
 for (const file of [
   "index.html",
   "profile.jpg",
+  "profile-cutout.png",
   "favicon.svg",
   "favicon.png",
   "apple-touch-icon.png",

@@ -6,7 +6,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { VRMLoaderPlugin, VRMUtils, type VRM, type VRMHumanBoneName } from "@pixiv/three-vrm";
 
 /** happy: just clicked. curious: hovering a link about him. still: reduced motion. */
-export type Mood = { happy: boolean; curious: boolean; still: boolean };
+export type Mood = { happy: boolean; curious: boolean; still: boolean; presented?: boolean };
 
 const GESTURES = { nod: 1.4, wave: 2.6, scratch: 3 };
 type Gesture = keyof typeof GESTURES;
@@ -73,7 +73,6 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
     hipsZ = bone("hips")?.position.z ?? 0;
     if (loaded.lookAt) loaded.lookAt.target = gaze;
     scene.add(loaded.scene);
-    if (!fullBody) play("wave"); // say hello on arrival; the standing figure has its own entrance
     frame();
     onReady?.(true);
   }, undefined, () => onReady?.(false));
@@ -320,6 +319,9 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
   // while frames are drawn, so it waits until he is on screen. The pose keys
   // run until ENTRANCE; the arms start folding just before.
   let entrance = fullBody ? 0 : Infinity;
+  // The portrait reveal owns this clock: loading behind the photo must not
+  // consume the opening pose. Keep the arms folded while turning to the camera.
+  let portraitTime = 0;
   let nextBlink = 1.5;
   let blinkStart = -Infinity;
 
@@ -330,10 +332,17 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
     const alive = mood.still ? 0 : 1;
     if (vrm) entrance = alive ? entrance + delta : Infinity;
     // Entering, he looks at the camera; once up, he eases into following the pointer.
-    const follow = ease(clamp01((entrance - ENTRANCE) / 0.8));
+    if (!fullBody && vrm && mood.presented) portraitTime = alive ? portraitTime + delta : Infinity;
+    const portraitTurn = ease(clamp01((portraitTime - 0.7) / 1.7));
+    const portraitYaw = fullBody ? 0 : -0.38 + portraitTurn * 0.26;
+    const follow = fullBody
+      ? ease(clamp01((entrance - ENTRANCE) / 0.8))
+      : ease(clamp01((portraitTime - 4.4) / 0.8));
     const x = pose.x * follow;
     const y = pose.y * follow;
-    const fold = ease(clamp01((entrance - 4.45) / 0.9));
+    const fold = fullBody
+      ? ease(clamp01((entrance - 4.45) / 0.9))
+      : 1 - ease(clamp01((portraitTime - 3) / 1.4));
     const toward = (value: number, target: number, rate: number) => value + (target - value) * Math.min(1, delta * rate);
 
     // --- Feelings
@@ -341,7 +350,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
     curiosity = toward(curiosity, mood.curious ? 1 : 0, 6);
     // Each click plays the next gesture; left alone, he fidgets by himself.
     if (mood.happy && !wasHappy && alive) play(CLICK_GESTURES[clicks++ % CLICK_GESTURES.length]);
-    else if (alive && vrm && fold >= 1 && t > nextIdleGesture) play(IDLE_GESTURES[Math.floor(Math.random() * IDLE_GESTURES.length)]);
+    else if (alive && vrm && (fullBody ? fold >= 1 : portraitTime > 7) && t > nextIdleGesture) play(IDLE_GESTURES[Math.floor(Math.random() * IDLE_GESTURES.length)]);
     wasHappy = mood.happy;
     // Gesture envelope: ease in, hold, ease out. `u` is progress through it.
     const u = (t - gestureStart) / GESTURES[gesture];
@@ -384,7 +393,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       const settle = stance;
       const hipSway = sway * (1 - stance);
       const hips = bone("hips");
-      hips?.rotation.set(0, hipSway * 0.03, hipSway * 0.012 - settle * 0.05);
+      hips?.rotation.set(0, portraitYaw + hipSway * 0.03, hipSway * 0.012 - settle * 0.05);
       if (hips) hips.position.x = hipsX - settle * 0.02;
       // The legs undo the pelvis tilt and shift so the feet stay planted.
       const plant = settle * 0.075;
@@ -420,7 +429,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       bone("neck")?.rotation.set(y * 0.1 - lookUp * 0.14 + drift * 0.012 + bow * 0.06, x * 0.22, curiosity * 0.05);
       bone("head")?.rotation.set(
         y * 0.14 - lookUp * 0.16 - happiness * 0.1 + laugh * 0.015 + drift * 0.015 + bow * 0.14,
-        x * 0.26 + Math.sin(t * 0.41) * 0.03 * alive,
+        x * 0.26 + Math.sin(t * 0.41) * 0.03 * alive - portraitYaw * (0.5 + portraitTurn * 0.5),
         -x * 0.05 + curiosity * 0.1 + sway * 0.015 + wave * 0.06 + scratch * 0.1 + stance * 0.15,
       );
       // Standing, the chin drops a touch, which reads friendlier than a level stare.
@@ -434,7 +443,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       bone("rightShoulder")?.rotation.set(0, -stance * 0.05, -lift * 0.012 + stance * 0.14);
       const fidget = Math.sin(t * 12);
       const swing = Math.sin(t * 9);
-      // Standing, he folds his arms in a shallow X: the right forearm rides higher
+      // At rest, he folds his arms in a shallow X: the right forearm rides higher
       // and in front, the left tucks under it, elbows flared past the torso. A
       // gesture unfolds one arm from there.
       const foldLeft: Hold = { anchor: "chest", target: [-0.09, -0.03, 0.17], hint: [1, -0.55, -0.15] };
@@ -458,7 +467,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
           fromWrist.lerpVectors(fromPole.set(fromPole.x + sign * 0.07, fromPole.y - 0.43, fromPole.z + 0.05), fromWrist, weight);
           reach(side, Math.max(weight, clamp01((intro[3] + intro[4]) * 3)), "world", [fromWrist.x, fromWrist.y, fromWrist.z + 0.02], [sign, -0.3, -0.5]);
         }
-      } else if (fold < 1) {
+      } else if (fullBody ? fold < 1 : fold > 0) {
         reach("left", fold, foldLeft.anchor, foldLeft.target, foldLeft.hint);
         reach("right", fold, foldRight.anchor, foldRight.target, foldRight.hint);
       } else {
@@ -479,7 +488,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
         orient("left", waveFingers.set(-0.5 + floor, -0.2, 0.8), wavePalm.set(0, -1, 0.1), Math.max(clamp01(intro[22]), floor));
         orient("right", waveFingers.set(0.5 - 0.3 * (1 - intro[24] / 0.45), -0.35, 0.8), wavePalm.set(0, -1, -0.2), clamp01(intro[23]));
       }
-      if (fullBody) {
+      {
         // Folded, the hands wrap around the upper arms with the fingers curled.
         // The left hand tucks under the right arm; the right hand grips the left
         // upper arm from above, fingers wrapping down behind it.

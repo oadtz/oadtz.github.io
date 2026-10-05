@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { createAvatar3D } from "./avatar3d";
 
+const REVEAL_DURATION = 2400;
+
 const sparks = [
   [12, 22, 120],
   [86, 18, 60],
@@ -22,20 +24,60 @@ export default function Avatar({
   const happyTimer = useRef(0);
   const [happy, setHappy] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
+  const [photoLoaded, setPhotoLoaded] = useState(false);
+  const [photoHeld, setPhotoHeld] = useState(false);
+  const [phase, setPhase] = useState<"photo" | "revealing" | "avatar">("photo");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pose = useRef({ x: 0, y: 0 });
-  const moodRef = useRef({ happy: false, curious: false, still: paused });
+  const moodRef = useRef({ happy: false, curious: false, still: paused, presented: false });
   const sceneRef = useRef<ReturnType<typeof createAvatar3D> | null>(null);
   const paint = () => {
     const { x, y } = pose.current;
     sceneRef.current?.render(x, y, moodRef.current);
   };
 
+  // Count the portrait's reading time only while the hero is actually visible.
   useEffect(() => {
-    moodRef.current = { happy, curious: hint !== null, still: paused };
+    const stage = stageRef.current;
+    if (!stage || !photoLoaded || photoHeld) return;
+    let visible = false;
+    let timer = 0;
+    const sync = () => {
+      window.clearTimeout(timer);
+      if (visible && !document.hidden) {
+        timer = window.setTimeout(() => setPhotoHeld(true), 1100);
+      }
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      sync();
+    }, { threshold: 0.35 });
+    observer.observe(stage);
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      window.clearTimeout(timer);
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", sync);
+    };
+  }, [photoLoaded, photoHeld]);
+
+  useEffect(() => {
+    if (status !== "ready" || !photoHeld || phase === "avatar") return;
+    const timer = window.setTimeout(() => {
+      if (paused || phase === "revealing") {
+        setPhase("avatar");
+      } else {
+        setPhase("revealing");
+      }
+    }, paused || phase === "photo" ? 0 : REVEAL_DURATION);
+    return () => window.clearTimeout(timer);
+  }, [status, photoHeld, phase, paused]);
+
+  useEffect(() => {
+    moodRef.current = { happy, curious: hint !== null, still: paused, presented: phase !== "photo" };
     // Reduced motion has no animation loop, so repaint the expression here.
     if (paused) paint();
-  }, [happy, hint, paused]);
+  }, [happy, hint, paused, phase]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -49,14 +91,16 @@ export default function Avatar({
     import("./avatar3d")
       .then(({ createAvatar3D }) => {
         if (cancelled) return;
-        sceneRef.current = createAvatar3D(canvas, false, (loaded) => setStatus(loaded ? "ready" : "failed"));
+        sceneRef.current = createAvatar3D(canvas, false, (loaded) => {
+          if (!cancelled) setStatus(loaded ? "ready" : "failed");
+        });
         sceneRef.current.resize();
         paint();
         resize.observe(canvas);
       })
       .catch(() => {
-        // No WebGL: the stage keeps its glow without the character.
-        setStatus("failed");
+        // No WebGL: retain the real portrait.
+        if (!cancelled) setStatus("failed");
       });
     return () => {
       cancelled = true;
@@ -148,6 +192,8 @@ export default function Avatar({
       ref={stageRef}
       data-happy={happy || undefined}
       data-status={status}
+      data-phase={phase}
+      style={{ "--reveal-duration": `${REVEAL_DURATION}ms` } as CSSProperties}
     >
       <div className="avatar-scene">
         <div className="avatar-halo" />
@@ -155,10 +201,29 @@ export default function Avatar({
           className="avatar-figure"
           type="button"
           onClick={poke}
-          aria-label="Cartoon Thanapat. Click to say hi."
+          disabled={phase !== "avatar"}
+          aria-label={phase === "avatar" ? "Cartoon Thanapat. Click to say hi." : "Portrait of Thanapat Pirmphol"}
         >
           <canvas ref={canvasRef} aria-hidden="true" />
-          <span className="avatar-loader" aria-hidden="true" />
+          <span className="avatar-portrait" aria-hidden="true">
+            <img
+              src="/profile-cutout.png"
+              alt=""
+              width="1254"
+              height="1254"
+              fetchPriority="high"
+              onLoad={() => setPhotoLoaded(true)}
+              onError={(event) => {
+                // The original photo also provides a fallback if the cutout fails.
+                if (!event.currentTarget.src.endsWith("/profile.jpg")) {
+                  event.currentTarget.src = "/profile.jpg";
+                } else {
+                  setPhotoHeld(true);
+                }
+              }}
+            />
+          </span>
+          <span className="avatar-transformation" aria-hidden="true" />
         </button>
         {sparks.map(([left, top, depth], index) => (
           <span

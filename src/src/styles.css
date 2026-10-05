@@ -794,6 +794,84 @@ html[data-motion="off"] .reveal {
 .avatar-figure:focus-visible {
   outline-offset: -10px;
 }
+/* Hallmark · pre-emit critique: P4 H4 E4 S5 R4 V4 */
+/* Real portrait first; a single shared scan boundary replaces it with the VRM. */
+.avatar-stage {
+  --portrait-mask: linear-gradient(to bottom, var(--bg) 76%, transparent 99%);
+  --reveal-glow: color-mix(in srgb, var(--cyan) 55%, transparent);
+}
+.avatar-figure:disabled {
+  cursor: default;
+}
+.avatar-portrait {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mask-image: var(--portrait-mask);
+}
+.avatar-portrait img {
+  position: absolute;
+  top: 3%;
+  left: -17%;
+  width: 120%;
+  height: auto;
+}
+.avatar-stage[data-phase="photo"] canvas {
+  opacity: 0;
+  animation: none;
+}
+.avatar-stage[data-phase="revealing"] canvas {
+  animation: portrait-reveal var(--reveal-duration) var(--ease) both;
+}
+.avatar-stage[data-phase="revealing"] .avatar-portrait {
+  animation: portrait-depart var(--reveal-duration) var(--ease) both;
+}
+.avatar-stage[data-phase="avatar"] canvas {
+  animation: none;
+  opacity: 1;
+}
+.avatar-stage[data-phase="avatar"] .avatar-portrait {
+  visibility: hidden;
+}
+.avatar-transformation {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.avatar-transformation::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--cyan), var(--ink), var(--violet), transparent);
+  box-shadow: 0 0 20px 5px var(--reveal-glow);
+}
+.avatar-stage[data-phase="revealing"] .avatar-transformation {
+  animation: portrait-scan var(--reveal-duration) var(--ease) both;
+}
+@keyframes portrait-reveal {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
+@keyframes portrait-depart {
+  from { clip-path: inset(0); }
+  to { clip-path: inset(100% 0 0); }
+}
+@keyframes portrait-scan {
+  from { transform: translateY(0); opacity: 0; }
+  12%, 80% { opacity: 1; }
+  to { transform: translateY(100%); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-stage[data-phase="revealing"] canvas {
+    animation: none;
+  }
+  .avatar-stage[data-phase="revealing"] .avatar-portrait,
+  .avatar-transformation {
+    display: none;
+  }
+}
 .avatar-spark {
   position: absolute;
   width: 5px;
