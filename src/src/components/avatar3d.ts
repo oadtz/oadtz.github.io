@@ -156,6 +156,41 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
     hand.quaternion.slerp(parentTurn.multiply(reachTurn), weight);
   }
 
+  const fingers = new THREE.Vector3();
+  const palm = new THREE.Vector3();
+  const thumb = new THREE.Vector3();
+  const basis = new THREE.Matrix4();
+  const rollTurn = new THREE.Quaternion();
+  const waveFingers = new THREE.Vector3();
+  const wavePalm = new THREE.Vector3();
+  /**
+   * Turn a hand so its fingers point along `fingerDir` with the palm facing
+   * `palmDir` (both world space). The forearm takes the roll, as a real wrist
+   * does, so the sleeve cuff doesn't twist.
+   */
+  function orient(side: "left" | "right", fingerDir: THREE.Vector3, palmDir: THREE.Vector3, weight: number) {
+    const lower = bone(`${side}LowerArm`);
+    const hand = bone(`${side}Hand`);
+    if (!lower || !hand || weight <= 0) return;
+    const sign = side === "left" ? 1 : -1;
+    // Roll the forearm about its own axis until its palm side faces palmDir.
+    lower.getWorldQuaternion(anchorTurn);
+    along.set(sign, 0, 0).applyQuaternion(anchorTurn);
+    pole.set(0, -1, 0).applyQuaternion(anchorTurn); // the palm faces down in the T-pose
+    palm.copy(palmDir).addScaledVector(along, -palmDir.dot(along)).normalize();
+    // ponytail: assumes palmDir isn't parallel to the forearm; fine for a wave.
+    const angle = Math.atan2(along.dot(thumb.crossVectors(pole, palm)), pole.dot(palm));
+    lower.quaternion.multiply(rollTurn.setFromAxisAngle(along.set(sign, 0, 0), angle * weight));
+    // Then set the hand: rest axes are fingers ±X, palm -Y, thumb +Z.
+    fingers.copy(fingerDir).normalize();
+    palm.copy(palmDir).addScaledVector(fingers, -palmDir.dot(fingers)).normalize();
+    thumb.crossVectors(palm, fingers).multiplyScalar(sign);
+    basis.makeBasis(fingers.clone().multiplyScalar(sign), palm.clone().negate(), thumb);
+    reachTurn.setFromRotationMatrix(basis);
+    hand.parent!.getWorldQuaternion(parentTurn).invert();
+    hand.quaternion.slerp(parentTurn.multiply(reachTurn), weight);
+  }
+
   const pose = { x: 0, y: 0, mood: { happy: false, curious: false, still: false } as Mood };
   const clock = new THREE.Clock();
   let happiness = 0;
@@ -265,13 +300,15 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       const foldLeft: Hold = { anchor: "chest", target: [-0.09, -0.01, 0.15], hint: [1, -0.55, -0.15] };
       const foldRight: Hold = { anchor: "chest", target: [0.09, 0.08, 0.22], hint: [-1, -0.55, -0.15] };
       // Wave: the left hand comes up beside the face and swings from the elbow.
-      // Standing, the hand waves wider so it stays clear of his face.
-      const waveOut = fullBody ? 0.08 : 0;
-      reach("left", wave, "chest", [0.15 + waveOut + swing * 0.03, 0.27 + waveOut * 0.4, 0.16 - waveOut * 0.4], [0.4, -0.9, 0.2], fullBody ? foldLeft : undefined);
+      reach("left", wave, "chest", [0.21 + swing * 0.04, 0.27, 0.16], [0.4, -0.9, 0.2], fullBody ? foldLeft : undefined);
       // Scratch: the right hand goes to the back of the head (x toward his left, y up, z forward).
       reach("right", scratch, "head", [-0.115 + fidget * 0.006, 0.14 + fidget * 0.012, -0.045], [-0.5, -0.5, 0.7], fullBody ? foldRight : undefined);
-      bone("leftHand")?.rotation.set(0, 0, wave * swing * 0.3);
+      bone("leftHand")?.rotation.set(0, 0, 0);
       bone("rightHand")?.rotation.set(0, 0, -scratch * (0.55 + fidget * 0.12));
+      // Waving, the open palm faces where he is looking, fingers up and leaning a
+      // little outward, rocking side to side with the forearm.
+      const tilt = 0.18 + swing * 0.26;
+      orient("left", waveFingers.set(Math.sin(tilt), Math.cos(tilt), 0.1), wavePalm.set(x * 0.5, -y * 0.3, 1), wave);
       if (fullBody) {
         // Folded, the hands wrap around the upper arms with the fingers curled.
         // The left hand tucks under the right arm; the right hand grips the left
