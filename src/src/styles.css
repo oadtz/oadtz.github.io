@@ -684,7 +684,6 @@ html[data-motion="off"] .reveal {
   left: -30%;
   width: 160%;
   height: 100%;
-  filter: drop-shadow(0 20px 30px #0008);
   mask-image: linear-gradient(to bottom, #000 80%, transparent 98%);
   pointer-events: none;
 }
@@ -750,7 +749,8 @@ html[data-motion="off"] .reveal {
   opacity: 0;
 }
 [data-status="ready"] canvas {
-  animation: materialize 1.4s var(--ease) both;
+  /* No fill after it ends: a lingering filter or clip softens the canvas in mobile Safari. */
+  animation: materialize 1.4s var(--ease) backwards;
 }
 [data-status="ready"] .avatar-loader {
   opacity: 0;

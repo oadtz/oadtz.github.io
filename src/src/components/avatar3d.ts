@@ -20,7 +20,8 @@ const ENTRANCE = 5.1;
 /** `onReady` reports whether the model loaded, once, so the page can reveal it. */
 export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onReady?: (loaded: boolean) => void) {
   const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  // Phones are commonly 3x; capping lower leaves the line art visibly soft there.
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 3));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
   const scene = new THREE.Scene();
