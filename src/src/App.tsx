@@ -8,6 +8,7 @@ import {
 } from "./content";
 import Icon from "./components/Icon";
 import Avatar from "./components/Avatar";
+import StandingAvatar from "./components/StandingAvatar";
 import SpaceBackdrop from "./components/SpaceBackdrop";
 import PhotoCollection from "./components/PhotoCollection";
 import { photographs } from "./photographs";
@@ -454,6 +455,7 @@ export default function App() {
                 GitHub <Icon name="external" />
               </a>
             </div>
+            <StandingAvatar paused={reducedMotion} />
           </div>
         </section>
       </main>

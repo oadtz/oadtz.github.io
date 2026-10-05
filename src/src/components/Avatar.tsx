@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { createAvatar3D } from "./avatar3d";
 
-const lines = [
-  "Hi, I’m Thanapat 👋",
-  "Move your mouse and I’ll follow along ✨",
-  "I build trusted systems: ledgers, markets, AI agents.",
-  "Off the clock, I’m behind a camera 📷",
-  "…or playing one more round 🎮",
-];
 const sparks = [
   [12, 22, 120],
   [86, 18, 60],
@@ -27,7 +20,6 @@ export default function Avatar({
 }) {
   const stageRef = useRef<HTMLDivElement>(null);
   const happyTimer = useRef(0);
-  const [line, setLine] = useState(0);
   const [happy, setHappy] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pose = useRef({ x: 0, y: 0 });
@@ -143,12 +135,10 @@ export default function Avatar({
   useEffect(() => () => clearTimeout(happyTimer.current), []);
 
   const poke = () => {
-    setLine((current) => (current + 1) % lines.length);
     setHappy(true);
     clearTimeout(happyTimer.current);
     happyTimer.current = window.setTimeout(() => setHappy(false), 1500);
   };
-  const message = hint ?? lines[line];
 
   return (
     <div
@@ -156,9 +146,6 @@ export default function Avatar({
       ref={stageRef}
       data-happy={happy || undefined}
     >
-      <p className="avatar-bubble" aria-live="polite" key={message}>
-        {message}
-      </p>
       <div className="avatar-scene">
         <div className="avatar-halo" />
         <button

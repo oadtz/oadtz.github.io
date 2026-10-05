@@ -717,35 +717,6 @@ html[data-motion="off"] .reveal {
     opacity: 1;
   }
 }
-.avatar-bubble {
-  font-family: "Pixelify Sans", var(--display);
-  position: absolute;
-  z-index: 2;
-  top: 0;
-  left: -4%;
-  max-width: 180px;
-  padding: 12px 16px;
-  border-radius: 18px 18px 18px 4px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  line-height: 1.45;
-  border: 1px solid #ffffff26;
-  background: #12122299;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 16px 40px #0007;
-  animation: bubble-pop 0.5s var(--ease) both;
-  pointer-events: none;
-  transform: translate(calc(var(--x) * -10px), calc(var(--y) * -6px));
-}
-@keyframes bubble-pop {
-  from {
-    opacity: 0;
-    scale: 0.85;
-    translate: 0 8px;
-  }
-}
-
 .avatar-stage[data-happy] .avatar-figure {
   animation: hop 0.6s var(--ease);
 }
@@ -1318,6 +1289,39 @@ html[data-motion="off"] .reveal {
   justify-content: center;
   margin-top: 10px;
 }
+/* The standing figure sits behind the copy, which stays on top. */
+.contact-card > :not(.contact-figure) {
+  position: relative;
+  z-index: 1;
+}
+.contact-figure {
+  display: block;
+  height: 340px;
+  aspect-ratio: 1 / 2;
+  margin: -8px 0 -12px;
+  pointer-events: none;
+}
+@media (min-width: 900px) {
+  /* Two columns: the copy reads left-aligned, the figure floats on the right. */
+  .contact-card {
+    min-height: 540px;
+    padding-right: calc(clamp(32px, 6vw, 80px) + 280px);
+    text-align: left;
+    justify-items: start;
+    align-content: center;
+  }
+  .contact-card .hero-actions {
+    justify-content: flex-start;
+  }
+  .contact-figure {
+    position: absolute;
+    top: 50%;
+    right: clamp(32px, 5vw, 72px);
+    height: 90%;
+    margin: 0;
+    translate: 0 -50%;
+  }
+}
 
 footer {
   width: min(1180px, calc(100% - 32px));
@@ -1381,11 +1385,6 @@ footer a:last-child .icon {
   .orbit-chip .icon {
     width: 17px;
     height: 17px;
-  }
-  .avatar-bubble {
-    font-size: 0.8125rem;
-    max-width: 180px;
-    left: -4%;
   }
   .work-section,
   .photography-section,
