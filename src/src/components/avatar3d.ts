@@ -239,9 +239,11 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false) {
       // Head: follows the pointer, drifts a little, tilts when curious, tips back to laugh.
       // Standing, he nods deeper so it reads at the smaller scale.
       const bow = nod * (1 + stance * 0.6);
-      bone("neck")?.rotation.set(y * 0.1 + drift * 0.012 + bow * 0.06, x * 0.22, curiosity * 0.05);
+      // Looking up bends further back than looking down, so a pointer above him reads clearly.
+      const lookUp = clamp01(-y);
+      bone("neck")?.rotation.set(y * 0.1 - lookUp * 0.14 + drift * 0.012 + bow * 0.06, x * 0.22, curiosity * 0.05);
       bone("head")?.rotation.set(
-        y * 0.14 - happiness * 0.1 + laugh * 0.015 + drift * 0.015 + bow * 0.14,
+        y * 0.14 - lookUp * 0.16 - happiness * 0.1 + laugh * 0.015 + drift * 0.015 + bow * 0.14,
         x * 0.26 + Math.sin(t * 0.41) * 0.03 * alive,
         -x * 0.05 + curiosity * 0.1 + sway * 0.015 + wave * 0.06 + scratch * 0.1 + stance * 0.15,
       );
