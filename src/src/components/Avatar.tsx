@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { createAvatar3D } from "./avatar3d";
 
-const REVEAL_DURATION = 2400;
-
 const sparks = [
   [12, 22, 120],
   [86, 18, 60],
@@ -24,9 +22,6 @@ export default function Avatar({
   const happyTimer = useRef(0);
   const [happy, setHappy] = useState(false);
   const [status, setStatus] = useState<"loading" | "ready" | "failed">("loading");
-  const [photoLoaded, setPhotoLoaded] = useState(false);
-  const [photoHeld, setPhotoHeld] = useState(false);
-  const [phase, setPhase] = useState<"photo" | "revealing" | "avatar">("photo");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const pose = useRef({ x: 0, y: 0 });
   const moodRef = useRef({ happy: false, curious: false, still: paused, presented: false });
@@ -36,48 +31,11 @@ export default function Avatar({
     sceneRef.current?.render(x, y, moodRef.current);
   };
 
-  // Count the portrait's reading time only while the hero is actually visible.
   useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage || !photoLoaded || photoHeld) return;
-    let visible = false;
-    let timer = 0;
-    const sync = () => {
-      window.clearTimeout(timer);
-      if (visible && !document.hidden) {
-        timer = window.setTimeout(() => setPhotoHeld(true), 1100);
-      }
-    };
-    const observer = new IntersectionObserver(([entry]) => {
-      visible = entry.isIntersecting;
-      sync();
-    }, { threshold: 0.35 });
-    observer.observe(stage);
-    document.addEventListener("visibilitychange", sync);
-    return () => {
-      window.clearTimeout(timer);
-      observer.disconnect();
-      document.removeEventListener("visibilitychange", sync);
-    };
-  }, [photoLoaded, photoHeld]);
-
-  useEffect(() => {
-    if (status !== "ready" || !photoHeld || phase === "avatar") return;
-    const timer = window.setTimeout(() => {
-      if (paused || phase === "revealing") {
-        setPhase("avatar");
-      } else {
-        setPhase("revealing");
-      }
-    }, paused || phase === "photo" ? 0 : REVEAL_DURATION);
-    return () => window.clearTimeout(timer);
-  }, [status, photoHeld, phase, paused]);
-
-  useEffect(() => {
-    moodRef.current = { happy, curious: hint !== null, still: paused, presented: phase !== "photo" };
+    moodRef.current = { happy, curious: hint !== null, still: paused, presented: status === "ready" };
     // Reduced motion has no animation loop, so repaint the expression here.
     if (paused) paint();
-  }, [happy, hint, paused, phase]);
+  }, [happy, hint, paused, status]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -99,7 +57,7 @@ export default function Avatar({
         resize.observe(canvas);
       })
       .catch(() => {
-        // No WebGL: retain the real portrait.
+        // No WebGL: retain the decorative halo without the character.
         if (!cancelled) setStatus("failed");
       });
     return () => {
@@ -192,8 +150,6 @@ export default function Avatar({
       ref={stageRef}
       data-happy={happy || undefined}
       data-status={status}
-      data-phase={phase}
-      style={{ "--reveal-duration": `${REVEAL_DURATION}ms` } as CSSProperties}
     >
       <div className="avatar-scene">
         <div className="avatar-halo" />
@@ -201,29 +157,11 @@ export default function Avatar({
           className="avatar-figure"
           type="button"
           onClick={poke}
-          disabled={phase !== "avatar"}
-          aria-label={phase === "avatar" ? "Cartoon Thanapat. Click to say hi." : "Portrait of Thanapat Pirmphol"}
+          disabled={status !== "ready"}
+          aria-label="Cartoon Thanapat. Click to say hi."
         >
           <canvas ref={canvasRef} aria-hidden="true" />
-          <span className="avatar-portrait" aria-hidden="true">
-            <img
-              src="/profile-cutout.png"
-              alt=""
-              width="1254"
-              height="1254"
-              fetchPriority="high"
-              onLoad={() => setPhotoLoaded(true)}
-              onError={(event) => {
-                // The original photo also provides a fallback if the cutout fails.
-                if (!event.currentTarget.src.endsWith("/profile.jpg")) {
-                  event.currentTarget.src = "/profile.jpg";
-                } else {
-                  setPhotoHeld(true);
-                }
-              }}
-            />
-          </span>
-          <span className="avatar-transformation" aria-hidden="true" />
+          <span className="avatar-loader" aria-hidden="true" />
         </button>
         {sparks.map(([left, top, depth], index) => (
           <span
