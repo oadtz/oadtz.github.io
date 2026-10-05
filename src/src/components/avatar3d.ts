@@ -15,7 +15,7 @@ const CLICK_GESTURES: Gesture[] = ["wave", "nod", "scratch"];
 const ease = (t: number) => t * t * (3 - 2 * t);
 const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 /** Seconds the standing figure takes to get up from the floor. */
-const ENTRANCE = 5.1;
+const ENTRANCE = 5.7;
 
 /** `onReady` reports whether the model loaded, once, so the page can reveal it. */
 export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onReady?: (loaded: boolean) => void) {
@@ -199,8 +199,9 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
    * Key poses of the standing figure's entrance, as [seconds, channels]. He sits
    * cross-legged looking at his lap, looks up, leans in and plants his left hand
    * on the floor, uncrosses his right leg and plants that foot where it will
-   * stand, comes up onto his left knee, pushes off the right knee, steps the
-   * left foot through and straightens. `hips`, `left` and `right` are the
+   * stand, pivots on his left knee as he pushes off the floor, settles in a
+   * half-kneel, pushes off the right thigh, steps the left foot through and
+   * straightens. `hips`, `left` and `right` are the
    * standing pelvis and ankles, so the planted foot never slides and the last
    * key lands exactly on the stance.
    *
@@ -220,23 +221,28 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       ...pelvis, pitch, lean, head, ...leftAnkle, ...rightAnkle, ...leftKnee, ...rightKnee, ...feet, ...hands, tilt, legs, ...straight,
     ];
     const stance: Vec = [right.x, right.y, right.z];
-    // Slumped, knees a little off the floor, shins crossed, toes pointing forward.
+    // Slumped, knees a little off the floor, shins crossed, ankles straight.
     const seated = (head: number, lean: number) =>
-      key([0, 0.16, seatZ], -0.2, lean, head, [-0.14, 0.07, seatZ + 0.27], [0.12, 0.09, seatZ + 0.33], [1, 0.28, 0.2], [-1, 0.28, 0.2], [0.25, 0.25, 0.1, -0.1], [1, 1, 0.45, 0], 0.04, 1, [1, 1]);
-    const leanIn = key([0.02, 0.16, seatZ - 0.03], -0.1, 0.95, 0.2, [-0.14, 0.07, seatZ + 0.27], [0.12, 0.09, seatZ + 0.33], [1, 0.28, 0.2], [-1, 0.4, 0.2], [0.25, 0.25, 0.1, -0.1], [0, 1, 0.45, 1], 0.14, 1, [1, 1]);
-    const uncross = key([0.04, 0.17, seatZ + 0.02], -0.05, 0.8, 0.25, [-0.08, 0.07, seatZ + 0.22], stance, [1, 0.3, 0.2], [-0.2, 1, 0.3], [0.25, 0, 0.1, -0.2], [0, 1, 0, 1], 0.17, 1, [1, 0]);
-    const kneel = key([-0.07, 0.5, kneelZ], 0.1, 0.55, 0.1, [0.1, 0.12, kneelZ - 0.45], stance, [0, 0, 1], [-0.25, 1, 0.5], [1.2, 0, 0.1, -0.2], [0, 1, 0, 0], 0, 1);
-    const push = key([-0.06, 0.8, kneelZ * 0.45], 0.12, 0.6, 0, [left.x + 0.02, left.y + 0.09, kneelZ * 0.9], stance, [0, 0, 1], [-0.4, 0.3, 1], [0.5, 0, 0.2, -0.2], [0, 0.9, 0, 0], 0, 1);
-    // The left foot lands heel first a little short of where it will stand.
-    const step = key([hips.x - 0.03, hips.y - 0.06, hips.z - 0.05], 0.05, 0.3, 0, [left.x, left.y + 0.05, left.z - 0.1], stance, [0, 0, 1], [-0.2, 0, 1], [-0.15, 0, 0.2, -0.2], [0, 0.15, 0, 0], 0, 1);
+      key([0, 0.16, seatZ], -0.3, lean, head, [-0.14, 0.07, seatZ + 0.27], [0.12, 0.09, seatZ + 0.33], [1, 0.4, 0.2], [-1, 0.4, 0.2], [0.25, 0.25, 0.1, -0.1], [1, 1, 0.45, 0], 0.04, 1, [1, 1]);
+    // Still holding the viewer's eye as the left hand finds the floor.
+    const leanIn = key([0.02, 0.16, seatZ - 0.03], -0.15, 1.05, -0.05, [-0.14, 0.07, seatZ + 0.27], [0.12, 0.09, seatZ + 0.33], [1, 0.4, 0.2], [-1, 0.5, 0.2], [0.25, 0.25, 0.1, -0.1], [0, 1, 0.45, 1], 0.14, 1, [1, 1]);
+    const uncross = key([0.04, 0.17, seatZ + 0.02], 0, 0.85, 0, [-0.08, 0.07, seatZ + 0.22], stance, [1, 0.3, 0.2], [-0.3, 1, 0.3], [0.25, 0, 0.1, -0.2], [0, 1, 0, 1], 0.17, 1, [1, 0]);
+    // The left knee pivots on the floor while that foot swings out and round
+    // behind him; he glances at the hand he is pushing on.
+    const pivot = key([-0.03, 0.3, kneelZ], 0.2, 0.75, 0.25, [0.36, 0.09, kneelZ - 0.18], stance, [0.5, -0.4, 1], [-0.35, 1, 0.4], [0.6, 0, 0.6, -0.2], [0, 1, 0, 1], 0.2, 1, [0.5, 0]);
+    const kneel = (settle: number) =>
+      key([-0.09, 0.5 - settle, kneelZ], 0.25, 0.4 + settle * 3, 0.1, [0.15, 0.12, kneelZ - 0.45], stance, [0, 0, 1], [-0.35, 1, 0.5], [1.2, 0, 0.1, -0.2], [0, 1, 0, 0], 0, 1);
+    // Chest over the right foot, pushing off the back toes with the knees turned out.
+    const push = key([-0.1, 0.78, kneelZ * 0.4], 0.25, 0.55, 0.05, [0.17, 0.17, kneelZ - 0.28], stance, [0.35, 0, 1], [-0.5, 0.2, 1], [0.9, 0, 0.2, -0.2], [0, 0.9, 0, 0], 0, 1);
+    const step = key([hips.x - 0.04, hips.y - 0.07, hips.z - 0.06], 0.1, 0.3, 0, [left.x + 0.03, left.y + 0.07, left.z - 0.2], stance, [0.2, 0, 1], [-0.25, 0, 1], [0.2, 0, 0.25, -0.2], [0, 0.15, 0, 0], 0, 1);
     const stand = (lean: number, legs: number) =>
-      key([hips.x, hips.y, hips.z], 0, lean, 0, [left.x, left.y, left.z], stance, [0, 0, 1], [0, 0, 1], [0, 0, 0.2, -0.2], [0, 0, 0, 0], 0, legs);
-    // Unhurried: slow up to the knee, a beat there, a steady push, then settle.
+      key([hips.x, hips.y, hips.z], 0, lean, 0, [left.x, left.y, left.z], stance, [0, 0, 1], [0, 0, 1], [0, 0, 0.3, -0.2], [0, 0, 0, 0], 0, legs);
+    // Unhurried: slow up to the knee, a breath there, a steady push, then settle.
     // prettier-ignore
     return [
-      [0, seated(0.3, 0.5)], [0.35, seated(0.3, 0.5)], [0.85, seated(-0.05, 0.42)], [1.15, seated(-0.05, 0.42)],
-      [1.55, leanIn], [2.15, uncross], [2.85, kneel], [3.1, kneel], [3.7, push], [4.05, step],
-      [4.45, stand(-0.04, 1)], [4.8, stand(0, 0)], [ENTRANCE, stand(0, 0)],
+      [0, seated(0.3, 0.75)], [0.35, seated(0.3, 0.75)], [0.85, seated(-0.05, 0.62)], [1.15, seated(-0.05, 0.62)],
+      [1.55, leanIn], [2.15, uncross], [2.7, pivot], [3.25, kneel(0)], [3.6, kneel(0.02)], [4.2, push], [4.55, step],
+      [5, stand(-0.04, 1)], [5.4, stand(0, 0)], [ENTRANCE, stand(0, 0)],
     ];
   }
   /** The entrance pose at `time`, on a Catmull-Rom curve through the keys so nothing stops dead between them. */
@@ -332,7 +338,9 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
     const follow = ease(clamp01((entrance - ENTRANCE) / 0.8));
     const x = pose.x * follow;
     const y = pose.y * follow;
-    const fold = ease(clamp01((entrance - 4.45) / 0.9));
+    // The arms fold as he straightens, the left leading; `fold` is the later one.
+    const foldLead = ease(clamp01((entrance - 4.75) / 0.9));
+    const fold = ease(clamp01((entrance - 4.9) / 0.9));
     const toward = (value: number, target: number, rate: number) => value + (target - value) * Math.min(1, delta * rate);
 
     // --- Feelings
@@ -389,7 +397,7 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       const plant = settle * 0.075;
       bone("leftUpperLeg")?.rotation.set(-stance * 0.15, stance * 0.12, plant + stance * 0.07);
       bone("leftLowerLeg")?.rotation.set(stance * 0.28, 0, 0);
-      bone("leftFoot")?.rotation.set(-stance * 0.13, stance * 0.22, -stance * 0.095);
+      bone("leftFoot")?.rotation.set(-stance * 0.13, stance * 0.3, -stance * 0.095);
       bone("rightUpperLeg")?.rotation.set(0, -stance * 0.12, plant - stance * 0.07);
       bone("rightLowerLeg")?.rotation.set(0, 0, 0);
       bone("rightFoot")?.rotation.set(0, -stance * 0.2, stance * 0.045);
@@ -436,14 +444,19 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       // Standing, he folds his arms in a shallow X: the right forearm rides higher
       // and in front, the left tucks under it, elbows flared past the torso. A
       // gesture unfolds one arm from there.
-      const foldLeft: Hold = { anchor: "chest", target: [-0.09, -0.03, 0.17], hint: [1, -0.55, -0.15] };
-      const foldRight: Hold = { anchor: "chest", target: [0.08, 0.06, 0.24], hint: [-1, -0.55, -0.15] };
-      if (intro && fold <= 0) {
-        // Entrance: each hand rests on its own shin, then the left plants on the
-        // floor beside him and the right pushes off the raised knee.
-        for (const side of ["left", "right"] as const) {
+      const foldLeft: Hold = { anchor: "chest", target: [-0.09, -0.08, 0.17], hint: [1, -0.45, -0.15] };
+      const foldRight: Hold = { anchor: "chest", target: [0.08, 0.02, 0.24], hint: [-1, -0.9, -0.15] };
+      for (const side of ["left", "right"] as const) {
+        const sign = side === "left" ? 1 : -1;
+        const folding = side === "left" ? foldLead : fold;
+        const hold = side === "left" ? foldLeft : foldRight;
+        if (intro && folding <= 0) {
+          // Entrance: each hand rests on its own shin, then the left plants on the
+          // floor beside him and the right presses on the raised thigh.
           const along = side === "left" ? intro[24] * 1.3 : intro[24];
-          bone(`${side}LowerLeg`)!.getWorldPosition(fromWrist).lerp(bone(`${side}Foot`)!.getWorldPosition(fromPole), along);
+          const knee = bone(`${side}LowerLeg`)!;
+          knee.getWorldPosition(fromWrist).lerp(knee.parent!.getWorldPosition(fromPole), 0.15); // just above the knee
+          fromWrist.lerp(knee.getWorldPosition(elbowAt).lerp(bone(`${side}Foot`)!.getWorldPosition(fromPole), along), clamp01(along / 0.2));
           fromWrist.y += 0.08;
           let weight = clamp01(intro[side === "left" ? 22 : 23]);
           if (side === "left") {
@@ -452,19 +465,19 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
             weight = Math.max(weight, floor);
           }
           // A free arm hangs straight down from the shoulder however far he leans.
-          const sign = side === "left" ? 1 : -1;
           bone(`${side}UpperArm`)!.getWorldPosition(fromPole);
           fromWrist.lerpVectors(fromPole.set(fromPole.x + sign * 0.07, fromPole.y - 0.43, fromPole.z + 0.05), fromWrist, weight);
-          reach(side, Math.max(weight, clamp01((intro[3] + intro[4]) * 3)), "world", [fromWrist.x, fromWrist.y, fromWrist.z + 0.02], [sign, -0.3, -0.5]);
+          reach(side, Math.max(weight, clamp01((intro[3] + intro[4]) * 3)), "world", [fromWrist.x, fromWrist.y, fromWrist.z + 0.02], [sign * 0.35, -1, -0.4]);
+        } else if (fold < 1) {
+          // Folding: the hand leaves the thigh and arcs up past the belly.
+          reach(side, folding, hold.anchor, hold.target, hold.hint, { anchor: "hips", target: [sign * 0.2, -0.05, 0.04], hint: [sign, -0.2, -0.6] });
         }
-      } else if (fold < 1) {
-        reach("left", fold, foldLeft.anchor, foldLeft.target, foldLeft.hint);
-        reach("right", fold, foldRight.anchor, foldRight.target, foldRight.hint);
-      } else {
-      // Wave: the left hand comes up beside the face and swings from the elbow.
-      reach("left", wave, "chest", [0.21 + swing * 0.04, 0.27, 0.16], [0.4, -0.9, 0.2], fullBody ? foldLeft : undefined);
-      // Scratch: the right hand goes to the back of the head (x toward his left, y up, z forward).
-      reach("right", scratch, "head", [-0.115 + fidget * 0.006, 0.14 + fidget * 0.012, -0.045], [-0.5, -0.5, 0.7], fullBody ? foldRight : undefined);
+      }
+      if (fold >= 1) {
+        // Wave: the left hand comes up beside the face and swings from the elbow.
+        reach("left", wave, "chest", [0.21 + swing * 0.04, 0.27, 0.16], [0.4, -0.9, 0.2], fullBody ? foldLeft : undefined);
+        // Scratch: the right hand goes to the back of the head (x toward his left, y up, z forward).
+        reach("right", scratch, "head", [-0.115 + fidget * 0.006, 0.14 + fidget * 0.012, -0.045], [-0.5, -0.5, 0.7], fullBody ? foldRight : undefined);
       }
       bone("leftHand")?.rotation.set(0, 0, 0);
       bone("rightHand")?.rotation.set(0, 0, -scratch * (0.55 + fidget * 0.12));
@@ -472,24 +485,24 @@ export function createAvatar3D(canvas: HTMLCanvasElement, fullBody = false, onRe
       // little outward, rocking side to side with the forearm.
       const tilt = 0.18 + swing * 0.26;
       orient("left", waveFingers.set(Math.sin(tilt), Math.cos(tilt), 0.1), wavePalm.set(x * 0.5, -y * 0.3, 1), wave);
-      if (intro && fold <= 0) {
+      if (intro) {
         // Entrance: palms lie flat on whatever they rest on, fingers draped forward.
         const floor = clamp01(intro[25]);
-        orient("left", waveFingers.set(-0.5 + floor, -0.2, 0.8), wavePalm.set(0, -1, 0.1), Math.max(clamp01(intro[22]), floor));
-        orient("right", waveFingers.set(0.5 - 0.3 * (1 - intro[24] / 0.45), -0.35, 0.8), wavePalm.set(0, -1, -0.2), clamp01(intro[23]));
+        if (foldLead <= 0) orient("left", waveFingers.set(-0.5 + floor, -0.2, 0.8), wavePalm.set(0, -1, 0.1), Math.max(clamp01(intro[22]), floor));
+        if (fold <= 0) orient("right", waveFingers.set(0.5 - 0.3 * (1 - intro[24] / 0.45), -0.35, 0.8), wavePalm.set(0, -1, -0.2), clamp01(intro[23]));
       }
       if (fullBody) {
         // Folded, the hands wrap around the upper arms with the fingers curled.
         // The left hand tucks under the right arm; the right hand grips the left
         // upper arm from above, fingers wrapping down behind it.
-        aim("left", [-0.6, 0, -1], (1 - wave) * fold);
+        aim("left", [-0.6, 0, -1], (1 - wave) * foldLead);
         aim("right", [0.8, -0.45, -0.7], (1 - scratch) * fold);
         for (const finger of ["Index", "Middle", "Ring", "Little"] as const)
           for (const joint of ["Proximal", "Intermediate", "Distal"] as const) {
             const curl = joint === "Distal" ? 0.7 : 1.1;
-            // Resting on a leg, the fingers curl loosely.
-            bone(`left${finger}${joint}`)?.rotation.set(0, 0, -curl * (1 - wave) * Math.max(fold, intro ? clamp01(intro[22]) * 0.35 : 0));
-            bone(`right${finger}${joint}`)?.rotation.set(0, 0, curl * (1 - scratch * 0.6) * Math.max(fold, intro ? clamp01(intro[23]) * 0.35 : 0));
+            // Through the entrance the fingers stay loosely curled.
+            bone(`left${finger}${joint}`)?.rotation.set(0, 0, -curl * (1 - wave) * Math.max(foldLead, intro ? 0.25 : 0));
+            bone(`right${finger}${joint}`)?.rotation.set(0, 0, curl * (1 - scratch * 0.6) * Math.max(fold, intro ? 0.25 : 0));
           }
       }
 
